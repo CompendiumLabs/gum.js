@@ -8,10 +8,10 @@ Displays text and other elements. Note that you will typically not set the font 
 
 If `wrap` is specified, the text will be wrapped to the specified width. In either case, single newlines will be respected, though whitespace will be compressed. There are two wrapper elements related to text:
 
-There are two default fonts that are always provided: `sans = 'IBM Plex Sans'` and `mono ='IBM Plex Mono'`. You can use these global variables anywhere.
-
 - **TextBox** / **TextFrame** can handle text with a border and background
 - **TextStack** can handle multiple lines of text that are passed in as an array
+
+There are two default fonts that are always provided: `sans = 'IBM Plex Sans'` and `mono ='IBM Plex Mono'`. You can use these global variables anywhere.
 
 Parameters:
 - `children` — the text to display

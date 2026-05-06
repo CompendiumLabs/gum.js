@@ -44,7 +44,7 @@ Stack one or more **Element** either vertically or horizontally. There are speci
 
 The simplest case is when all children have aspect ratios. In the **HStack** case, the overall aspect ratio of the stack is the sum of the child aspect ratios. Children are allocated space in proportion to their aspect ratios. The **VStack** case is similar, but we need to deal in inverse aspect ratio terms.
 
-When some children lack aspect ratios, they will be allocated any remaining space evenly. Regardless of whether a child has an aspect ratio or not, it can be given a fixed size with the `stack-size` parameter. This is specified as a fraction between 0 and 1, independent of spacing.
+When some children lack aspect ratios, they will be allocated any remaining space evenly. Regardless of whether a child has an aspect ratio or not, it can be given a fixed size with the `stack-size` parameter. This is specified as a fraction between 0 and 1, independent of spacing. Be warned though, if you specify `stack-size` for a child with an aspect ratio, it will be ignored. If you specify `stack-size` for every child, the resulting stack will have no aspect ratio.
 
 Whenever possible, the aspect ratio of the overall stack is set so that all elements with defined aspect ratios will reach full width (in the **VStack** case) or full height (in the **HStack** case).
 

@@ -3,12 +3,12 @@
 import EMOJI_REGEX from 'emojibase-regex'
 import LineBreaker from 'linebreak'
 
-import { DEFAULTS as D, sans, moji } from './const.js'
-import { is_string, compress_whitespace, sum, zip, max, min } from './utils.js'
-import { wrapWidths } from './wrap.js'
-import { FONTS } from '../fonts/fonts.js'
+import { DEFAULTS as D, sans, moji } from './const'
+import { is_string, compress_whitespace, sum, zip, max, min } from './utils'
+import { wrapWidths } from './wrap'
+import { FONTS } from '../fonts/fonts'
 
-import type { Limit } from './types.js'
+import type { Limit } from './types'
 
 //
 // create text sizer

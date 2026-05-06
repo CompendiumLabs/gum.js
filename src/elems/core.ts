@@ -258,7 +258,7 @@ function props_repr(d: Attrs, prec: number): string {
 }
 
 // reserved keys
-const SPEC_KEYS = [ 'rect', 'aspect', 'expand', 'align', 'upright', 'rotate', 'rotate_adjust', 'invar', 'coord' ]
+const SPEC_KEYS = [ 'rect', 'coord', 'aspect', 'aspect0', 'expand', 'align', 'upright', 'offset', 'rotate', 'rotate_adjust', 'rotate_invar' ]
 const HELP_KEYS = [ 'pos', 'size', 'xsize', 'ysize', 'flex', 'spin', 'orient' ]
 const EXTR_KEYS = [ 'stack_size' ]
 const RESERVED_KEYS = [ ...SPEC_KEYS, ...HELP_KEYS, ...EXTR_KEYS ]
@@ -282,6 +282,7 @@ interface SpecArgs {
     rect?: Rect
     coord?: Rect | 'auto'
     aspect?: number | 'auto'
+    aspect0?: number
     expand?: boolean
     align?: Align
     upright?: boolean
@@ -345,8 +346,8 @@ class Element {
         if (flex === true) this.spec.aspect = undefined
 
         // adjust aspect for rotation
-        this.spec.aspect0 = this.spec.aspect
-        this.spec.aspect = this.spec.rotate_invar ? this.spec.aspect0 : rotate_aspect(this.spec.aspect, this.spec.rotate)
+        this.spec.aspect0 ??= this.spec.aspect
+        this.spec.aspect = this.spec.rotate_invar ? this.spec.aspect0 : rotate_aspect(this.spec.aspect0, this.spec.rotate)
 
         // warn if children are passed
         if (children != null) console.error(`Got children in ${this.constructor.name}`)

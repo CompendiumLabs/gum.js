@@ -10,31 +10,28 @@ To test the output of a particular `gum.jsx` snippet or file, you can pipe it to
 
 ```bash
 # Generate SVG from a gum.jsx snippet
-echo '<Rectangle rounded fill={blue} />' | bun run cli -f svg > output.svg
+echo '<Rectangle rounded fill={blue} />' | gum -f svg
 
-# Generate PNG from a gum.jsx snippet
-echo '<Rectangle rounded fill={blue} />' | bun run cli -f png > output.png
+# Generate SVG from a gum.jsx snippet and save to file
+echo '<Rectangle rounded fill={blue} />' | bun run cli -o test.svg
 
-# Generate SVG from a .jsx file
-cat test.jsx | bun run cli -f svg > output.svg
+# Generate PNG from a gum.jsx snippet and save to file
+echo '<Rectangle rounded fill={blue} />' | bun run cli -o test.png
 
-# Generate PNG from a .jsx file
-cat test.jsx | bun run cli -f png > output.png
+# Generate SVG from a .jsx file and save to file
+gum test.jsx -o test.svg
 
-# Generate SVG from a .jsx file without redirection
-gum test.jsx -o output.svg
-
-# Generate PNG from a .jsx file without redirection
-gum test.jsx -o output.png
+# Generate PNG from a .jsx file and save to file
+gum test.jsx -o test.png
 
 # Run options:
 # file: gum.jsx file to render (reads from stdin if not provided)
 # -s, --size <size>        size of the svg (default: 1000)
 # -w, --width <width>      width of the png (default: null)
 # -h, --height <height>    height of the png (default: null)
-# -f, --format <format>    format: svg, png, or kitty (default: kitty)
+# -f, --format <format>    format: svg, png, kitty (default: kitty or inferred)
 # -t, --theme <theme>      theme to use (default: light)
-# -b, --background <color> background color (default: null)
+# -b, --background <color> background color (default: white)
 # -o, --output <output>    output file (default: null)
 ```
 
@@ -48,12 +45,12 @@ bun tsc --noEmit
 
 Test examples are in `docs/code/` and `docs/gala/`. Run the full test suite:
 ```bash
-bun scripts/test.js
+bun scripts/test.ts
 ```
 
 Or test a single file:
 ```bash
-cat docs/code/box.jsx | bun run cli -f svg > output.svg
+gum docs/code/box.jsx -o test.svg
 ```
 
 ## Architecture
@@ -62,39 +59,39 @@ cat docs/code/box.jsx | bun run cli -f svg > output.svg
 
 The library is built around a class hierarchy split across element modules:
 
-**Element** (`src/elems/core.js`) - Base class for all components
+**Element** (`src/elems/core.ts`) - Base class for all components
 - Stores `args` (constructor arguments) as a dictionary for easy cloning
-- Has a `spec` object containing layout parameters (rect, aspect, expand, align, rotate, invar, coord)
+- Has a `spec` object containing layout parameters (rect, coord, aspect, aspect0, expand, align, upright, offset, rotate, rotate_adjust, rotate_invar)
 - Has an `attr` object containing SVG attributes (stroke, fill, etc.)
 - Renders to SVG via the `svg(ctx)` method that takes a Context object
 
-**Group extends Element** (`src/elems/core.js`) - Container base class
+**Group extends Element** (`src/elems/core.ts`) - Container base class
 - Has a `children` array of Elements
 - Supports automatic aspect ratio detection (`aspect: 'auto'`)
 - Supports automatic coordinate system detection (`coord: 'auto'`)
 - Handles clipping and masking
 
-**Layout containers** (`src/elems/layout.js`):
+**Layout containers** (`src/elems/layout.ts`):
 - `Box`, `Frame`, `Stack`, `VStack`, `HStack`, `HWrap`, `Grid`
 - `Points`, `Anchor`, `Attach`, `Absolute`, `Field`, `Spacer`
 
-**Geometry elements** (`src/elems/geometry.js`):
+**Geometry elements** (`src/elems/geometry.ts`):
 - `Line`, `UnitLine`, `VLine`, `HLine`, `Square`, `Ellipse`, `Circle`, `Dot`, `Ray`
 - `Shape`, `Triangle`, `Path`, `Spline`, `Arc`, `RoundedRect`, `ArrowHead`, `Arrow`
 
-**Text elements** (`src/elems/text.js`):
+**Text elements** (`src/elems/text.ts`):
 - `Span`, `Text`, `TextStack`, `TextBox`, `TextFrame`, `TextFlex`, `Bold`, `Italic`, `Latex`, `Equation`
 
-**Plot elements** (`src/elems/plot.js`):
+**Plot elements** (`src/elems/plot.ts`):
 - `Bar`, `Bars`, `Scale`, `Labels`, `Axis`, `Mesh`, `Graph`, `Plot`, `BarPlot`, `Legend`
 
-**Network elements** (`src/elems/network.js`):
+**Network elements** (`src/elems/network.ts`):
 - `ArrowSpline`, `Node`, `Edge`, `Network`
 
-**Symbolic elements** (`src/elems/symbolic.js`):
+**Symbolic elements** (`src/elems/symbolic.ts`):
 - `SymPoints`, `SymLine`, `SymSpline`, `SymShape`, `SymFill`, `SymField`
 
-**Slide elements** (`src/elems/slide.js`):
+**Slide elements** (`src/elems/slide.ts`):
 - `TitleBox`, `TitleFrame`, `Slide`
 
 ### Context System
@@ -121,54 +118,64 @@ Key functions for rect manipulation:
 
 ### Evaluation Pipeline
 
-1. **Parse** (`src/lib/parse.js`): JSX code → AST using Acorn parser
+1. **Parse** (`src/lib/parse.ts`): JSX code → AST using Acorn parser
    - Walks the AST and converts JSX elements to `new ComponentName({ ...props })`
    - Handles JSX expressions, spreads, and nested children
-   - Imports `KEYS`/`VALS` from `src/gum.js` to inject all components and utilities as globals
+   - Imports `KEYS`/`VALS` from `src/gum.ts` to inject all components and utilities as globals
 
-2. **Evaluate** (`src/eval.js`): AST → Element tree
+2. **Evaluate** (`src/eval.ts`): AST → Element tree
    - Runs the transformed code to instantiate components
    - Wraps result in `Svg` component if needed
    - Validates that result is an Element
 
-3. **Render** (element classes): Element tree → SVG string
+3. **Render** (`src/elems/*.ts`): Element tree → SVG string
    - Each Element's `svg(ctx)` method renders itself
    - Context propagates coordinate transformations down the tree
    - Groups recursively render their children
 
+4. **Rasterize** (`src/render.ts`): SVG string → PNG buffer
+   - Uses `node-canvas` to rasterize the SVG string to a PNG buffer
+   - Can also format the output as a Kitty terminal image
+
 ### File Organization
 
 **Top-level modules:**
-- `src/gum.js` - Re-exports all elements and utilities; defines named constants (`none`, `blue`, `red`, etc.) and `KEYS`/`VALS` for the JSX evaluator
-- `src/defaults.js` - `DEFAULTS`, `THEME()` function, and theme management
-- `src/eval.js` - Code evaluation and element validation
-- `src/render.js` - SVG rendering to PNG via Resvg
+- `src/gum.ts` - Re-exports all elements and utilities; defines named constants (`none`, `blue`, `red`, etc.) and `KEYS`/`VALS` for the JSX evaluator
+- `src/defaults.ts` - `DEFAULTS`, `THEME()` function, and theme management
+- `src/eval.ts` - Code evaluation and element validation
+- `src/render.ts` - SVG rendering to PNG via node-canvas
 
 **Element modules (`src/elems/`):**
-- `core.js` - `Context`, `Element`, `Group`, `Svg`, `Rect`, plus `prefix_split`, `spec_split`, `align_frac`, `is_element`
-- `layout.js` - `Box`, `Frame`, `Stack`, `VStack`, `HStack`, `HWrap`, `Grid`, `Points`, `Anchor`, `Attach`, `Absolute`, `Field`, `Spacer`
-- `geometry.js` - `Line`, `UnitLine`, `Square`, `Ellipse`, `Circle`, `Dot`, `Ray`, `Shape`, `Triangle`, `Path`, `Spline`, `Arc`, `RoundedRect`, `ArrowHead`, `Arrow`
-- `text.js` - `Span`, `Text`, `TextStack`, `TextBox`, `TextFrame`, `TextFlex`, `Bold`, `Italic`, `Latex`, `Equation`
-- `plot.js` - `Bar`, `Bars`, `Scale`, `Labels`, `Axis`, `Mesh`, `Graph`, `Plot`, `BarPlot`, `Legend`
-- `network.js` - `ArrowSpline`, `Node`, `Edge`, `Network`
-- `symbolic.js` - `SymPoints`, `SymLine`, `SymSpline`, `SymShape`, `SymFill`, `SymField`
-- `math.js` - `MathSpan`, `MathText`, `SupSub`, `Frac`, `Sqrt`, `Bracket`, `Latex`
-- `katex.js` - `Latex`
-- `image.js` - `Image`
-- `slide.js` - `TitleBox`, `TitleFrame`, `Slide`
+- `core.ts` - `Context`, `Element`, `Group`, `Svg`, `Rect`, plus `prefix_split`, `spec_split`, `align_frac`, `is_element`
+- `layout.ts` - `Box`, `Frame`, `Stack`, `VStack`, `HStack`, `HWrap`, `Grid`, `Points`, `Anchor`, `Attach`, `Absolute`, `Field`, `Spacer`
+- `geometry.ts` - `Line`, `UnitLine`, `Square`, `Ellipse`, `Circle`, `Dot`, `Ray`, `Shape`, `Triangle`, `Path`, `Spline`, `Arc`, `RoundedRect`, `ArrowHead`, `Arrow`
+- `text.ts` - `Span`, `Text`, `TextStack`, `TextBox`, `TextFrame`, `TextFlex`, `Bold`, `Italic`, `Latex`, `Equation`
+- `plot.ts` - `Bar`, `Bars`, `Scale`, `Labels`, `Axis`, `Mesh`, `Graph`, `Plot`, `BarPlot`, `Legend`
+- `network.ts` - `ArrowSpline`, `Node`, `Edge`, `Network`
+- `symbolic.ts` - `SymPoints`, `SymLine`, `SymSpline`, `SymShape`, `SymFill`, `SymField`
+- `math.ts` - `MathSpan`, `MathText`, `SupSub`, `Frac`, `Sqrt`, `Bracket`, `Latex`
+- `katex.ts` - `Latex`
+- `image.ts` - `Image`
+- `slide.ts` - `TitleBox`, `TitleFrame`, `Slide`
 
 **Library modules (`src/lib/`):**
-- `utils.js` - Math utilities, array/vector ops, rect manipulation, color handling
-- `text.js` - Text measurement and wrapping using opentype.js
-- `parse.js` - JSX parser (Acorn) and AST walker
-- `meta.js` - Documentation metadata loading
-- `term.js` - Terminal utilities (stdin, Kitty protocol)
+- `utils.ts` - Math utilities, array/vector ops, rect manipulation, color handling
+- `text.ts` - Text measurement and wrapping using opentype.js
+- `parse.ts` - JSX parser (Acorn) and AST walker
+- `meta.ts` - Documentation metadata loading
+- `term.ts` - Terminal utilities (stdin, Kitty protocol)
 
-**Other:**
-- `scripts/test.js` - Runs all `docs/code/` and `docs/gala/` examples as a test suite
-- `docs/code/` - Component examples (one per element type)
+**Scripts:**
+- `scripts/gum.ts` - The CLI for running the `gum` command
+- `scripts/dev.ts` - The development server for running the `gum` command
+- `scripts/skill.ts` - Creates a ZIP file for the Claude skill
+- `scripts/test.ts` - Runs all `docs/code/` and `gala/code/` examples as a test suite
+
+**Documentation:**
 - `docs/text/` - Text documentation
-- `docs/gala/` - Gallery examples
+- `docs/code/` - Component examples (one per element type)
+- `gala/text/` - Gallery text documentation
+- `gala/code/` - Gallery code examples
 
 ## Important Patterns
 
@@ -191,8 +198,20 @@ class MyComponent extends Element {
 Use `spec_split(attr)` to separate layout params from SVG attributes:
 ```javascript
 const [ spec, attr ] = spec_split(args)
-// spec: { rect, aspect, expand, align, rotate, invar, coord }
+// spec: { rect, coord, aspect, aspect0, expand, align, upright, offset, rotate, rotate_adjust, rotate_invar }
 // attr: { stroke, fill, opacity, ... }
+```
+
+Use `prefix_split(prefixes, attr)` to split prefixed attributes for passing to sub-components. This allows parent components to accept prefixed props that get forwarded to children:
+```javascript
+class Plot extends Group {
+    constructor(args = {}) {
+        const [ xaxis_attr, yaxis_attr, attr ] = prefix_split(['xaxis', 'yaxis'], args)
+        const xaxis = new Axis({ ...xaxis_attr, direc: 'h' })
+        const yaxis = new Axis({ ...yaxis_attr, direc: 'v' })
+        super({ children: [ xaxis, yaxis ], ...attr })
+    }
+}
 ```
 
 ### Context Mapping
@@ -209,43 +228,28 @@ inner(ctx) {
 
 When mapping, if the child specifies an `aspect` ratio, `ctx.map()` will compute a pixel rect that respects that aspect. The child will be aligned within the available space according to its `align` parameter (e.g., 'center', 'left', [0.5, 0.5]).
 
-### Prefix Splitting for Sub-Components
-
-Use `prefix_split(prefixes, attr)` to split prefixed attributes for passing to sub-components. This allows parent components to accept prefixed props that get forwarded to children:
-```javascript
-class Plot extends Group {
-    constructor(args = {}) {
-        const [ xaxis_attr, yaxis_attr, attr ] = prefix_split(['xaxis', 'yaxis'], args)
-        // xaxis_stroke becomes stroke in xaxis_attr
-        // yaxis_size becomes size in yaxis_attr
-        // non-prefixed props remain in attr
-
-        const xaxis = new Axis({ ...xaxis_attr, direc: 'h' })
-        const yaxis = new Axis({ ...yaxis_attr, direc: 'v' })
-        super({ children: [xaxis, yaxis], ...attr })
-    }
-}
-// Usage: <Plot xaxis_stroke="red" yaxis_size={2} fill="blue" />
-```
-
 ## Element Specification
 
 Element specification keys:
-- `aspect`: Width/height ratio
 - `rect`: A rectangle `[x1, y1, x2, y2]` in coordinate space
 - `coord`: The coordinate system for children `[xmin, ymin, xmax, ymax]`
+- `aspect`: Width/height ratio
+- `aspect0`: Original aspect ratio (before rotation, internal use only)
 - `expand`: Whether to expand (true) or shrink (false) when fitting aspect
 - `align`: How to align content ('left'/'center'/'right' or 'top'/'middle'/'bottom', or numeric 0-1)
 - `rotate`: Rotation in degrees
-- `invar`: Rotation-invariant (apply rotation after layout, not before)
+- `rotate_invar`: Rotation-invariant (apply rotation after layout, not before)
+- `rotate_adjust`: Adjust rotation to fit aspect ratio
 
 Convenience keys (these map into the above keys):
 - `flex`: Override to set `aspect = null`
-- `pos/rad`: Center position and radius of the child's rectangle
-- `xrad/yrad`: Specifies one dimension of `rad` and applies `expand`
+- `pos/size`: Center position and size of the child's rectangle
+- `xsize/ysize`: Specifies one dimension of `size` and applies `expand`
 - `xlim/ylim`: Specify the coordinate limits for a specific dimension
-- `spin`: Specifies a `rotate` value and applies `invar`
-- `hflip/vflip`: Flip the child horizontally or vertically
+- `spin`: Specifies a `rotate` value and applies `rotate_invar`
+- `orient`: Specifies a `rotate` value and applies `rotate_adjust`
+- `upright`: Whether to keep the child upright (true) or allow it to rotate (false)
+- `offset`: Whether to offset the child by the parent's rect (true) or not (false)
 
 ## Math Elements
 
