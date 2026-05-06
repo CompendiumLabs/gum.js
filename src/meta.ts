@@ -3,7 +3,7 @@
 import { readFileSync, readdirSync } from 'fs'
 
 // replace links with bold and push headings
-function prepareText(text: string, sub: boolean = true): string {
+function prepareText(text: string, sub: boolean = false): string {
     text = text.replace(/\[(.*?)\]\((.*?)\)/g, '**$1**') // links to bold
     if (sub) text = text.replace(/^# (.*?)$/mg, '## $1') // headings to sub-headings
     return text.trim()
@@ -22,12 +22,12 @@ function prepareGalaCode(text: string): string {
     return `**Code**\n\n${code}`
 }
 
-function prepareDocsPage(text: string, code: string): string {
-    return `${prepareText(text, true)}\n\n${prepareDocsCode(code)}`
+function prepareDocsPage(text: string, code: string, sub: boolean = false): string {
+    return `${prepareText(text, sub)}\n\n${prepareDocsCode(code)}`
 }
 
-function prepareGalaPage(text: string, code: string): string {
-    return `${prepareText(text, false)}\n\n${prepareGalaCode(code)}`
+function prepareGalaPage(text: string, code: string, sub: boolean = false): string {
+    return `${prepareText(text, sub)}\n\n${prepareGalaCode(code)}`
 }
 
 // index directory contents

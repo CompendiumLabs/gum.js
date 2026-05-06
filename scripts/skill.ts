@@ -20,13 +20,6 @@ const { tags: docs_tags, cats, text: docs_text, code: docs_code } = getDocs('doc
 const { tags: gala_tags, text: gala_text, code: gala_code } = getGala('gala')
 
 // make reference pages
-const docs_pages = Object.fromEntries(docs_tags.map(tag =>
-   [ tag, prepareDocsPage(docs_text[tag], docs_code[tag]) ]
-))
-
-const gala_pages = Object.fromEntries(gala_tags.map(tag =>
-    [ tag, prepareGalaPage(gala_text[tag], gala_code[tag]) ]
-))
 
 // load prompt files
 const head = readFileSync('prompt/head.md', 'utf8').trim()
@@ -43,11 +36,11 @@ ${intro}
 
 ${docs}
 
-${docs_pages['Element']}
+${prepareDocsPage(docs_text['Element'], docs_code['Element'], true)}
 
-${docs_pages['Group']}
+${prepareDocsPage(docs_text['Group'], docs_code['Group'], true)}
 
-${docs_pages['Box']}
+${prepareDocsPage(docs_text['Box'], docs_code['Box'], true)}
 
 ${refs}
 
@@ -62,7 +55,9 @@ writeFileSync(`${output}/SKILL.md`, skill + '\n')
 mkdirSync(`${output}/references`, { recursive: true })
 Object.entries(cats).forEach(([c, ps]) => {
     if (c == 'core') return
-    const content = ps.map(p => docs_pages[p]).join('\n\n')
+    const content = ps.map(p =>
+        prepareDocsPage(docs_text[p], docs_code[p], true)
+    ).join('\n\n')
     const entry = `# ${capitalize(c)} Elements\n\n${content}\n`
     writeFileSync(`${output}/references/${c}.md`, entry)
 })
@@ -70,6 +65,6 @@ Object.entries(cats).forEach(([c, ps]) => {
 // write gala pages
 mkdirSync(`${output}/references/gala`, { recursive: true })
 gala_tags.forEach(t => {
-    const entry = gala_pages[t]
+    const entry = prepareGalaPage(gala_text[t], gala_code[t])
     writeFileSync(`${output}/references/gala/${t}.md`, entry)
 })

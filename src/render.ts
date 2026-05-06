@@ -1,6 +1,6 @@
 // Rasterize SVG to PNG via node-canvas
 
-import { createCanvas, loadImage, registerFont } from 'canvas'
+import { createCanvas, loadImage, registerFont, type ImageData as CanvasImageData } from 'canvas'
 
 import type { Size } from './lib/types'
 import { FONT_PATHS } from './fonts/fonts'
@@ -10,12 +10,22 @@ for (const [ family, path ] of Object.entries(FONT_PATHS)) {
   registerFont(path, { family })
 }
 
-interface RasterizeArgs {
+interface RasterizeBaseArgs {
   size?: Size
   width?: number
   height?: number
   background?: string
 }
+
+interface RasterizePngArgs extends RasterizeBaseArgs {
+  pixelData?: false
+}
+
+interface RasterizePixelArgs extends RasterizeBaseArgs {
+  pixelData: true
+}
+
+type RasterizeArgs = RasterizePngArgs | RasterizePixelArgs
 
 interface FormatImageArgs {
   imageId?: number | null
@@ -26,7 +36,9 @@ interface FormatImageArgs {
   cursorMovement?: boolean
 }
 
-async function rasterizeSvg(svg: string | Buffer, { size, width, height, background }: RasterizeArgs = {}): Promise<Buffer> {
+async function rasterizeSvg(svg: string | Buffer, args: RasterizePixelArgs): Promise<CanvasImageData>
+async function rasterizeSvg(svg: string | Buffer, args?: RasterizePngArgs): Promise<Buffer>
+async function rasterizeSvg(svg: string | Buffer, { size, width, height, background, pixelData }: RasterizeArgs = {}): Promise<Buffer | CanvasImageData> {
   const buf = typeof svg === 'string' ? Buffer.from(svg) : svg
   const img = await loadImage(buf)
   const w0 = size?.[0] ?? img.width
@@ -63,9 +75,9 @@ async function rasterizeSvg(svg: string | Buffer, { size, width, height, backgro
     ctx.fillRect(0, 0, outW, outH)
   }
 
-  // draw image to canvas and return PNG buffer
+  // draw image to canvas and return the requested raster representation
   ctx.drawImage(img, 0, 0, outW, outH)
-  return canvas.toBuffer('image/png')
+  return pixelData ? ctx.getImageData(0, 0, outW, outH) : canvas.toBuffer('image/png')
 }
 
 // kitty image protocol
@@ -107,4 +119,4 @@ async function readStdin(): Promise<string> {
 }
 
 export { rasterizeSvg, formatImage, readStdin }
-export type { RasterizeArgs, FormatImageArgs }
+export type { RasterizeBaseArgs, RasterizePngArgs, RasterizePixelArgs, RasterizeArgs, FormatImageArgs }

@@ -41,7 +41,7 @@
   "scripts": {
     "cli": "bun ./scripts/gum.ts",
     "test": "bun ./scripts/test.ts",
-    "skill": "bun ./scripts/skill.ts && cd skills/gum-jsx && zip -r gum-jsx.skill * && mv gum-jsx.skill ..",
+    "skill": "bun ./scripts/skill.ts && cd skills && rm -f gum-jsx.skill && zip -r gum-jsx.skill gum-jsx",
     "claude": "bun run skill && bun ./scripts/claude.ts"
   },
   "bin": {
