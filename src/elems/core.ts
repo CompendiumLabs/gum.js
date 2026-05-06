@@ -494,16 +494,16 @@ class Group extends Element {
             children.push(...irects, ...orects)
         }
 
-        // make actual clip mask
+        // make clip path
         let clip_path: string | undefined
         if (clip != null) {
             const clip_id = makeUID('clip')
             clip_path = `url(#${clip_id})`
-            const mask = new ClipPath({ children: [ clip ], id: clip_id })
-            children.push(mask)
+            const clip_elem = new ClipPath({ children: [ clip ], id: clip_id })
+            children.push(clip_elem)
         }
 
-        // handle mask
+        // make mask
         let mask: string | undefined
         if (mask0 != null) {
             const mask_id = makeUID('mask')

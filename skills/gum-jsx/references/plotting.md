@@ -11,9 +11,8 @@ Unlike **Group**, **Graph** will automatically pass the given `coord` to all chi
 You'll often want to use **Graph** (directly or indirectly) to display mathematical curves, as they might otherwise come out looking upside down relative to what you expect (as higher y-values mean "down" in raw SVG).
 
 Parameters:
-- `xlim`/`ylim` = `[0, 1]` — the range over which to graph
-- `padding` = `0` — limit padding to add when auto-detected from `elems`
-- `coord` = `'auto'` — the coordinate system to use for the graph (overrides `xlim`/`ylim`)
+- `xlim`/`ylim`/`coord` = `'auto'` — the coordinate system to use for the graph
+- `padding` = `0` — proportional padding to add when limits are auto-detected from children
 
 **Example**
 
