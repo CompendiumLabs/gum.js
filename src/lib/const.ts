@@ -13,7 +13,7 @@ const moji = 'Noto Emoji'
 const cmoji = 'Noto Color Emoji'
 
 // font metrics
-const light = 300
+const regular = 300
 const bold = 500
 const vtext = -0.15
 
@@ -52,4 +52,4 @@ const DEFAULTS = {
     calc_size: 16,
 }
 
-export { DEFAULTS, svgns, htmlns, sans, mono, moji, cmoji, light, bold, vtext, none, black, white, gray, blue, red, green, yellow, purple, lightgray, darkgray, e, pi, phi, r2d, d2r }
+export { DEFAULTS, svgns, htmlns, sans, mono, moji, cmoji, regular, bold, vtext, none, black, white, gray, blue, red, green, yellow, purple, lightgray, darkgray, e, pi, phi, r2d, d2r }

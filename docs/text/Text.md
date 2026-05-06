@@ -18,4 +18,4 @@ Parameters:
 - `justify` = `'left'` — the horizontal justification of the text
 - `color` = `black` — sets the text color using both stroke and fill (this is the usual way)
 - `font-family` = `sans` — the font family (for display and size calculations)
-- `font-weight` = `100` — the font weight (for display and size calculations)
+- `font-weight` = `300` — the font weight (for display and size calculations)

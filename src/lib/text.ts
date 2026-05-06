@@ -2,17 +2,22 @@
 
 import EMOJI_REGEX from 'emojibase-regex'
 import LineBreaker from 'linebreak'
+import type { Font } from 'opentype.js'
 
-import { DEFAULTS as D, sans, moji } from './const'
+import { DEFAULTS as D, sans, moji, regular, bold } from './const'
 import { is_string, compress_whitespace, sum, zip, max, min } from './utils'
 import { wrapWidths } from './wrap'
-import { FONTS } from '../fonts/fonts'
+import { FONTS, type FontPair, type FontEntry } from '../fonts/fonts'
 
 import type { Limit } from './types'
 
 //
 // create text sizer
 //
+
+function is_font_pair(font: FontEntry): font is FontPair {
+    return 'regular' in font && 'bold' in font
+}
 
 function is_emoji(text: string): boolean {
     return EMOJI_REGEX.test(text)
@@ -22,10 +27,18 @@ function arrayEquals(a: number[], b: number[]): boolean {
     return a.length == b.length && a.every((x, i) => x == b[i])
 }
 
+function rescale(x: number, lim_in: Limit, lim_out: Limit): number {
+    const [ in_lo, in_hi ] = lim_in
+    const [ out_lo, out_hi ] = lim_out
+    const [ in_len, out_len ] = [ in_hi - in_lo, out_hi - out_lo ]
+    return out_lo + (x - in_lo) * out_len / in_len
+}
+
 function emojiSizer(text: string): number {
     // get emoji font
-    const font = FONTS[moji]
-    if (font == null) return 1.25
+    const font0 = FONTS[moji]
+    if (font0 == null) return 1.25
+    const font = is_font_pair(font0) ? font0.regular : font0
 
     // get glyphs
     const { unitsPerEm } = font
@@ -55,25 +68,53 @@ function emojiSizer(text: string): number {
 
 type TextSizerArgs = {
     font_family?: string
+    font_weight?: number
     calc_size?: number
 }
 
-// TODO: handle font_weight
-function textSizer(text: string, { font_family = sans, calc_size = D.calc_size }: TextSizerArgs = {}): number {
+function textSizer(text: string, { font_family = sans, font_weight = regular, calc_size = D.calc_size }: TextSizerArgs = {}): number {
     if (is_emoji(text)) return emojiSizer(text)
+
+    // get font info
     const font = FONTS[font_family]
-    const width = font.getAdvanceWidth(text, calc_size)
-    return width / calc_size
+    const sizer = (font: Font) => font.getAdvanceWidth(text, calc_size) / calc_size
+
+    // handle simple cases
+    if (!is_font_pair(font)) return sizer(font)
+    if (font_weight == regular) return sizer(font.regular)
+    if (font_weight == bold) return sizer(font.bold)
+
+    // we need to interpolate
+    const w0 = sizer(font.regular)
+    const w1 = sizer(font.bold)
+    return rescale(font_weight, [ regular, bold ], [ w0, w1 ])
 }
 
-function textVertical(text: string, { font_family = sans }: TextSizerArgs = {}): Limit {
-    const font = FONTS[font_family]
+function fontVertical(font: Font, text: string): Limit {
     const glyphs = font.stringToGlyphs(text)
     const [yMins = [], yMaxs = []] = zip(...glyphs.map(g => [ g.yMin, g.yMax ]))
     const units = font.unitsPerEm ?? 1000
     const yMin = min(yMins) ?? 0
     const yMax = max(yMaxs) ?? units
     return [ yMin / units, yMax / units ]
+}
+
+function textVertical(text: string, { font_family = sans, font_weight = regular }: TextSizerArgs = {}): Limit {
+    const font = FONTS[font_family]
+    const vertical = (font: Font) => fontVertical(font, text)
+
+    // handle simple cases
+    if (!is_font_pair(font)) return vertical(font)
+    if (font_weight == regular) return vertical(font.regular)
+    if (font_weight == bold) return vertical(font.bold)
+
+    // we need to interpolate
+    const [ ymin0, ymax0 ] = fontVertical(font.regular, text)
+    const [ ymin1, ymax1 ] = fontVertical(font.bold, text)
+    return [
+        rescale(font_weight, [ regular, bold ], [ ymin0, ymax0 ]),
+        rescale(font_weight, [ regular, bold ], [ ymin1, ymax1 ]),
+    ]
 }
 
 type TextMetrics = {
