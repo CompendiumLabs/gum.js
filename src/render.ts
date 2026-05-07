@@ -4,13 +4,14 @@ import { createCanvas, loadImage, registerFont, type ImageData as CanvasImageDat
 
 import type { Size } from './lib/types'
 import { FONT_PATHS } from './fonts/fonts'
-import { regular, bold } from './lib/const'
+import { light, regular, bold } from './lib/const'
 
 // register bundled fonts so SVG <text> resolves consistently
 for (const [ family, path ] of Object.entries(FONT_PATHS)) {
   if (typeof path == 'string') {
     registerFont(path, { family })
   } else {
+    registerFont(path.light, { family, weight: String(light) })
     registerFont(path.regular, { family, weight: String(regular) })
     registerFont(path.bold, { family, weight: String(bold) })
   }

@@ -26,22 +26,11 @@ async function map_object_async<T, U>(obj: Record<string, T>, fn: (v: T) => Prom
 // load font data as arraybuffer
 //
 
-type FontPath = string | {
-    regular: string
-    bold: string
-}
-
-type FontData = ArrayBuffer | {
-    regular: ArrayBuffer
-    bold: ArrayBuffer
-}
-
-type FontPair = {
-    regular: Font,
-    bold: Font,
-}
-
-type FontEntry = Font | FontPair
+type FontWeight = 'light' | 'regular' | 'bold'
+type FontPath = string | Record<FontWeight, string>
+type FontData = ArrayBuffer | Record<FontWeight, ArrayBuffer>
+type FontSet = Record<FontWeight, Font>
+type FontEntry = Font | FontSet
 
 async function loadFont(path: string): Promise<ArrayBuffer> {
     if (is_browser()) {
@@ -60,6 +49,7 @@ async function loadFontFamily(path: FontPath): Promise<FontData> {
         return await loadFont(path)
     } else {
         return {
+            light: await loadFont(path.light),
             regular: await loadFont(path.regular),
             bold: await loadFont(path.bold),
         }
@@ -71,6 +61,7 @@ function parseFontFamily(data: FontData): FontEntry {
         return parseFont(data)
     } else {
         return {
+            light: parseFont(data.light),
             regular: parseFont(data.regular),
             bold: parseFont(data.bold),
         }
@@ -84,11 +75,15 @@ function parseFontFamily(data: FontData): FontEntry {
 const FONT_PATHS: Record<string, FontPath> = {
     [sans]: {
         // @ts-ignore
+        light: (await import('./IBMPlexSans-Light.ttf')).default,
+        // @ts-ignore
         regular: (await import('./IBMPlexSans-Regular.ttf')).default,
         // @ts-ignore
         bold: (await import('./IBMPlexSans-Bold.ttf')).default,
     },
     [mono]: {
+        // @ts-ignore
+        light: (await import('./IBMPlexMono-Light.ttf')).default,
         // @ts-ignore
         regular: (await import('./IBMPlexMono-Regular.ttf')).default,
         // @ts-ignore
@@ -130,4 +125,4 @@ async function registerFont(name: string, path: string) {
 // exports
 //
 
-export { FONT_PATHS, FONT_DATA, FONTS, registerFont, FontPair, FontEntry }
+export { FONT_PATHS, FONT_DATA, FONTS, registerFont, FontWeight, FontSet, FontEntry }

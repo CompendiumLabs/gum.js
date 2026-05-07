@@ -4,10 +4,10 @@ import EMOJI_REGEX from 'emojibase-regex'
 import LineBreaker from 'linebreak'
 import type { Font } from 'opentype.js'
 
-import { DEFAULTS as D, sans, moji, regular, bold } from './const'
+import { DEFAULTS as D, sans, moji, light, regular } from './const'
 import { is_string, compress_whitespace, sum, zip, max, min } from './utils'
 import { wrapWidths } from './wrap'
-import { FONTS, type FontPair, type FontEntry } from '../fonts/fonts'
+import { FONTS, type FontSet, type FontEntry, type FontWeight } from '../fonts/fonts'
 
 import type { Limit } from './types'
 
@@ -15,30 +15,32 @@ import type { Limit } from './types'
 // create text sizer
 //
 
-function is_font_pair(font: FontEntry): font is FontPair {
-    return 'regular' in font && 'bold' in font
+function is_font_set(font: FontEntry): font is FontSet {
+    return 'light' in font && 'regular' in font && 'bold' in font
 }
 
 function is_emoji(text: string): boolean {
     return EMOJI_REGEX.test(text)
 }
 
-function arrayEquals(a: number[], b: number[]): boolean {
-    return a.length == b.length && a.every((x, i) => x == b[i])
+const medium = 500
+
+// match the browser result for the bundled 300/400/700 static faces
+function closest_weight(weight: number): FontWeight {
+    if (weight < regular) return 'light'
+    if (weight <= medium) return 'regular'
+    return 'bold'
 }
 
-function rescale(x: number, lim_in: Limit, lim_out: Limit): number {
-    const [ in_lo, in_hi ] = lim_in
-    const [ out_lo, out_hi ] = lim_out
-    const [ in_len, out_len ] = [ in_hi - in_lo, out_hi - out_lo ]
-    return out_lo + (x - in_lo) * out_len / in_len
+function arrayEquals(a: number[], b: number[]): boolean {
+    return a.length == b.length && a.every((x, i) => x == b[i])
 }
 
 function emojiSizer(text: string): number {
     // get emoji font
     const font0 = FONTS[moji]
     if (font0 == null) return 1.25
-    const font = is_font_pair(font0) ? font0.regular : font0
+    const font = is_font_set(font0) ? font0.light : font0
 
     // get glyphs
     const { unitsPerEm } = font
@@ -72,22 +74,17 @@ type TextSizerArgs = {
     calc_size?: number
 }
 
-function textSizer(text: string, { font_family = sans, font_weight = regular, calc_size = D.calc_size }: TextSizerArgs = {}): number {
+function textSizer(text: string, { font_family = sans, font_weight = light, calc_size = D.calc_size }: TextSizerArgs = {}): number {
     if (is_emoji(text)) return emojiSizer(text)
 
     // get font info
     const font = FONTS[font_family]
     const sizer = (font: Font) => font.getAdvanceWidth(text, calc_size) / calc_size
 
-    // handle simple cases
-    if (!is_font_pair(font)) return sizer(font)
-    if (font_weight == regular) return sizer(font.regular)
-    if (font_weight == bold) return sizer(font.bold)
-
-    // we need to interpolate
-    const w0 = sizer(font.regular)
-    const w1 = sizer(font.bold)
-    return rescale(font_weight, [ regular, bold ], [ w0, w1 ])
+    // match the static face browser font matching would select
+    if (!is_font_set(font)) return sizer(font)
+    const weight = closest_weight(font_weight)
+    return sizer(font[weight])
 }
 
 function fontVertical(font: Font, text: string): Limit {
@@ -99,22 +96,14 @@ function fontVertical(font: Font, text: string): Limit {
     return [ yMin / units, yMax / units ]
 }
 
-function textVertical(text: string, { font_family = sans, font_weight = regular }: TextSizerArgs = {}): Limit {
+function textVertical(text: string, { font_family = sans, font_weight = light }: TextSizerArgs = {}): Limit {
     const font = FONTS[font_family]
     const vertical = (font: Font) => fontVertical(font, text)
 
-    // handle simple cases
-    if (!is_font_pair(font)) return vertical(font)
-    if (font_weight == regular) return vertical(font.regular)
-    if (font_weight == bold) return vertical(font.bold)
-
-    // we need to interpolate
-    const [ ymin0, ymax0 ] = fontVertical(font.regular, text)
-    const [ ymin1, ymax1 ] = fontVertical(font.bold, text)
-    return [
-        rescale(font_weight, [ regular, bold ], [ ymin0, ymax0 ]),
-        rescale(font_weight, [ regular, bold ], [ ymin1, ymax1 ]),
-    ]
+    // match the static face browser font matching would select
+    if (!is_font_set(font)) return vertical(font)
+    const weight = closest_weight(font_weight)
+    return vertical(font[weight])
 }
 
 type TextMetrics = {
