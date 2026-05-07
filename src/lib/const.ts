@@ -13,8 +13,8 @@ const moji = 'Noto Emoji'
 const cmoji = 'Noto Color Emoji'
 
 // font metrics
-const regular = 300
-const bold = 500
+const regular = 400
+const bold = 700
 const vtext = -0.15
 
 // colors
