@@ -1,6 +1,6 @@
 {
   "name": "gum-jsx",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "description": "Language for vector graphics generation.",
   "type": "module",
   "author": "Douglas Hanley",

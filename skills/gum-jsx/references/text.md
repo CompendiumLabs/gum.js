@@ -11,7 +11,7 @@ If `wrap` is specified, the text will be wrapped to the specified width. In eith
 - **TextBox** / **TextFrame** can handle text with a border and background
 - **TextStack** can handle multiple lines of text that are passed in as an array
 
-There are two default fonts that are always provided: `sans = 'IBM Plex Sans'` and `mono ='IBM Plex Mono'`. You can use these global variables anywhere.
+There are two default fonts that are always provided: `sans = 'IBM Plex Sans'` and `mono ='IBM Plex Mono'`. There are three availabe font weights: `light = 300`, `regular = 400`, and `bold = 700`. The default weight is `light`. You can use these global variables anywhere.
 
 Parameters:
 - `children` — the text to display
@@ -20,7 +20,7 @@ Parameters:
 - `justify` = `'left'` — the horizontal justification of the text
 - `color` = `black` — sets the text color using both stroke and fill (this is the usual way)
 - `font-family` = `sans` — the font family (for display and size calculations)
-- `font-weight` = `100` — the font weight (for display and size calculations)
+- `font-weight` = `300` — the font weight (for display and size calculations)
 
 **Example**
 
