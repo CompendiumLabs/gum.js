@@ -23,6 +23,36 @@ function is_emoji(text: string): boolean {
     return EMOJI_REGEX.test(text)
 }
 
+type TextRun = {
+    text: string
+    emoji: boolean
+}
+
+const EMOJI_GLOBAL_REGEX = new RegExp(EMOJI_REGEX.source, EMOJI_REGEX.flags.includes('g') ? EMOJI_REGEX.flags : `${EMOJI_REGEX.flags}g`)
+
+function splitEmojiRuns(text: string): TextRun[] {
+    const runs: TextRun[] = []
+    let last = 0
+    EMOJI_GLOBAL_REGEX.lastIndex = 0
+
+    let match: RegExpExecArray | null
+    while ((match = EMOJI_GLOBAL_REGEX.exec(text)) != null) {
+        const emoji = match[0]
+        const start = match.index
+        const end = start + emoji.length
+
+        if (start > last) runs.push({ text: text.slice(last, start), emoji: false })
+        if (emoji.length > 0) runs.push({ text: emoji, emoji: true })
+
+        last = end
+        if (EMOJI_GLOBAL_REGEX.lastIndex == start) EMOJI_GLOBAL_REGEX.lastIndex++
+    }
+
+    if (last < text.length) runs.push({ text: text.slice(last), emoji: false })
+    EMOJI_GLOBAL_REGEX.lastIndex = 0
+    return runs
+}
+
 const medium = 500
 
 // match the browser result for the bundled 300/400/700 static faces
@@ -74,17 +104,23 @@ type TextSizerArgs = {
     calc_size?: number
 }
 
-function textSizer(text: string, { font_family = sans, font_weight = light, calc_size = D.calc_size }: TextSizerArgs = {}): number {
-    if (is_emoji(text)) return emojiSizer(text)
-
+function textFont(font_family: string, font_weight: number): Font {
     // get font info
     const font = FONTS[font_family]
-    const sizer = (font: Font) => font.getAdvanceWidth(text, calc_size) / calc_size
 
     // match the static face browser font matching would select
-    if (!is_font_set(font)) return sizer(font)
+    if (!is_font_set(font)) return font
     const weight = closest_weight(font_weight)
-    return sizer(font[weight])
+    return font[weight]
+}
+
+function textSizer(text: string, { font_family = sans, font_weight = light, calc_size = D.calc_size }: TextSizerArgs = {}): number {
+    const font = textFont(font_family, font_weight)
+    const runs = splitEmojiRuns(text)
+    return sum(runs.map(run =>
+        run.emoji ? emojiSizer(run.text) :
+        (font.getAdvanceWidth(run.text, calc_size) / calc_size)
+    ))
 }
 
 function fontVertical(font: Font, text: string): Limit {
@@ -97,13 +133,8 @@ function fontVertical(font: Font, text: string): Limit {
 }
 
 function textVertical(text: string, { font_family = sans, font_weight = light }: TextSizerArgs = {}): Limit {
-    const font = FONTS[font_family]
-    const vertical = (font: Font) => fontVertical(font, text)
-
-    // match the static face browser font matching would select
-    if (!is_font_set(font)) return vertical(font)
-    const weight = closest_weight(font_weight)
-    return vertical(font[weight])
+    const font = textFont(font_family, font_weight)
+    return fontVertical(font, text)
 }
 
 type TextMetrics = {

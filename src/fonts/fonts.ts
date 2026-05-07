@@ -117,8 +117,8 @@ const FONTS: Record<string, FontEntry> = map_object(FONT_DATA, parseFontFamily)
 
 async function registerFont(name: string, path: string) {
     FONT_PATHS[name] = path
-    FONT_DATA[name] = await loadFont(path)
-    FONTS[name] = parseFont(FONT_DATA[name])
+    FONT_DATA[name] = await loadFontFamily(path)
+    FONTS[name] = parseFontFamily(FONT_DATA[name])
 }
 
 //
