@@ -115,7 +115,7 @@ Generated code:
 const emoji = ['🗻', '🚀', '🐳', '🍉', '🍩']
 const ticks = zip(linspace(0, 1, emoji.length), emoji)
 return <Box padding={[0.5, 1]}>
-  <HAxis aspect={10} ticks={ticks} tick-side="outer" label-size={1} />
+  <HAxis aspect={10} ticks={ticks} tick-side="outer" label-size={1} label-offset={0.25} />
 </Box>
 ```
 
