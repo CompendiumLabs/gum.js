@@ -1,13 +1,8 @@
-// draw a diagonal line in blue and a cup shaped line in red
-<Group>
-  <Line stroke={blue} points={[
-    [0.2, 0.2],
-    [0.8, 0.8],
-  ]} />
-  <Line stroke={red} points={[
-    [0.3, 0.3],
-    [0.3, 0.7],
-    [0.7, 0.7],
-    [0.7, 0.3],
-  ]} />
-</Group>
+// draw a piecewise line spiraling outwards (with dots at vertices)
+const spiral = linspace(0, 5, 25).map(t => polar(360 * t, t/5))
+return <Box margin>
+  <Graph coord={[-1, -1, 1, 1]}>
+    <Line points={spiral} />
+    <Points points={spiral} point-size={0.03} />
+  </Graph>
+</Box>

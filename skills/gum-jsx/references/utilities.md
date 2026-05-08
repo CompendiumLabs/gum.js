@@ -29,29 +29,25 @@ Here we collect a variety of global mathematical functions and constants. You ca
 - `round(x)` — the rounding function
 - `clamp(x, lim=[0, 1])` — clamp `x` to the range `lim`
 - `rescale(x, lim=[0, 1])` — linearly rescale `x` to the range `lim`
-- `polar([radius, angle], center=[0, 0])` — convert polar coordinates to a 2D point
+- `polar(angle, radius=1, center=[0, 0])` — convert polar coordinates (`angle` in degrees, `radius` scalar or size vector) to a 2D point around `center`
 
 Angles use gum's usual screen-space convention: `0` points right and `90` points down.
 
 **Example**
 
-Prompt: use polar to place points around a circle
+Prompt: embed a five point star in a circle. place red dots at its vertices.
 
 Generated code:
 ```jsx
-const center = [0.5, 0.5]
-const ring = range(10).map(i => {
-  const radius = i % 2 == 0 ? 0.32 : 0.16
-  return polar([radius, -90 + 36 * i], center)
+const verts = linspace(0, 360, 10, false).map((t, i) => {
+  const radius = i % 2 == 0 ? 1 : 0.5
+  return polar(90 + t, radius)
 })
-const spokes = range(5).map(i => polar([0.32, -90 + 72 * i], center))
-
-return <Group aspect={1}>
-  <Circle pos={center} size={0.64} stroke={darkgray} />
-  <Shape points={ring} stroke={blue} stroke-width={2} />
-  {spokes.map(pos => <Line points={[center, pos]} stroke={red} stroke-width={1.5} />)}
-  {ring.map(pos => <Dot pos={pos} size={0.03} fill={blue} />)}
-</Group>
+return <Graph aspect coord={[-1, -1, 1, 1]}>
+  <Circle pos={[0, 0]} size={2} stroke={darkgray} />
+  <Shape points={verts} stroke={blue} stroke-width={2} />
+  {verts.map(pos => <Dot pos={pos} size={0.05} fill={red} />)}
+</Graph>
 ```
 
 ## Arrays
@@ -72,7 +68,7 @@ There are a number of functions designed to make working with arrays easier. The
 - `norm(arr, degree=1)` — compute the `degree`-norm of array `arr`
 - `normalize(arr, degree=1)` — normalize array `arr` to have `degree`-norm one
 - `range(i0, i1, step=1)` — generate an array of evenly spaced values from `i0` to `i1` with spacing `step`
-- `linspace(x0, x1, n=50)` — generate an array of `n` evenly spaced values between `x0` and `x1`
+- `linspace(x0, x1, n, end=false)` — generate an array of `n` evenly spaced values between `x0` and `x1` (including `x1` if `end` is true)
 - `enumerate(arr)` — pair each element of array `arr` with its index
 - `repeat(x, n)` — repeat array `x` a total of `n` times
 - `meshgrid(x, y)` — create a mesh grid from arrays `x` and `y`

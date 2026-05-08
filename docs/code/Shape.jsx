@@ -1,14 +1,8 @@
-// draw a blue triangle with a semi-transparent green square overlaid on top
-<Group>
-  <Shape fill={blue} stroke={none} points={[
-    [0.5, 0.2],
-    [0.8, 0.8],
-    [0.2, 0.8]
-  ]} />
-  <Shape fill={green} stroke={none} opacity={0.5} points={[
-    [0.3, 0.3],
-    [0.7, 0.3],
-    [0.7, 0.7],
-    [0.3, 0.7]
-  ]} />
-</Group>
+// draw a stop sign
+const hexagon = linspace(0, 360, 8, false).map(t => polar(t))
+return <Box fill="#bbb" rounded padding margin>
+  <Graph xlim={[-1, 1]} ylim={[-1, 1]} aspect={1}>
+    <Shape points={hexagon} fill="#CC0202" stroke={white} stroke_width={20} spin={180/8} />
+    <Text pos={[0, 0]} xsize={1.5} color={white} font-weight={bold}>STOP</Text>
+  </Graph>
+</Box>

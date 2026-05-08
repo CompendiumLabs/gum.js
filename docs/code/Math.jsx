@@ -1,14 +1,10 @@
-// use polar to place points around a circle
-const center = [0.5, 0.5]
-const ring = range(10).map(i => {
-  const radius = i % 2 == 0 ? 0.32 : 0.16
-  return polar([radius, -90 + 36 * i], center)
+// embed a five point star in a circle. place red dots at its vertices.
+const verts = linspace(0, 360, 10, false).map((t, i) => {
+  const radius = i % 2 == 0 ? 1 : 0.5
+  return polar(90 + t, radius)
 })
-const spokes = range(5).map(i => polar([0.32, -90 + 72 * i], center))
-
-return <Group aspect={1}>
-  <Circle pos={center} size={0.64} stroke={darkgray} />
-  <Shape points={ring} stroke={blue} stroke-width={2} />
-  {spokes.map(pos => <Line points={[center, pos]} stroke={red} stroke-width={1.5} />)}
-  {ring.map(pos => <Dot pos={pos} size={0.03} fill={blue} />)}
-</Group>
+return <Graph aspect coord={[-1, -1, 1, 1]}>
+  <Circle pos={[0, 0]} size={2} stroke={darkgray} />
+  <Shape points={verts} stroke={blue} stroke-width={2} />
+  {verts.map(pos => <Dot pos={pos} size={0.05} fill={red} />)}
+</Graph>

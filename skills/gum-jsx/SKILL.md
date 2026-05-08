@@ -120,11 +120,10 @@ Without specifying `stack-size`, the `Text` element would be quite large (it has
 Here are the handy array functions provided by the library. All of these mimic the behavior of their counterparts in Python and `numpy`. This can be useful for generating `Element` objects from arrays:
 ```typescript
 function zip(...arrs: any[]): any[]
-function range(start: number, end: number, step: number): number[]
-function linspace(start: number, end: number, num: number): number[]
+function range(ia: number, ib?: number, step?: number = 1): number[]
+function linspace(x0: number, x1: number, num: number, end?: boolean = false): number[]
 function enumerate(x: any[]): any[]
 function repeat(x: any, n: number): any[]
-function lingrid(xlim: range, ylim: range, N: number): number[][]
 ```
 
 Some of the most commonly used mathematical constants are pre-defined in the global scope:
@@ -188,12 +187,14 @@ Methods:
 
 **Example**
 
-Prompt: create a custom triangle element called `Tri` and use it to create a triangle with a gray fill
+Prompt: draw a 2x1 rectangle in red with a blue square embedded within it
 
 Generated code:
 ```jsx
-const Tri = ({ pos0, pos1, pos2, ...attr }) => <Shape {...attr} points={[pos0, pos1, pos2]} />
-return <Tri pos0={[0.5, 0.1]} pos1={[0.9, 0.9]} pos2={[0.1, 0.9]} fill={gray} />
+<Group aspect={2}>
+  <Rect stroke={red} />
+  <Square stroke={blue} />
+</Group>
 ```
 
 ## Group

@@ -16,7 +16,7 @@ There are a number of functions designed to make working with arrays easier. The
 - `norm(arr, degree=1)` — compute the `degree`-norm of array `arr`
 - `normalize(arr, degree=1)` — normalize array `arr` to have `degree`-norm one
 - `range(i0, i1, step=1)` — generate an array of evenly spaced values from `i0` to `i1` with spacing `step`
-- `linspace(x0, x1, n=50)` — generate an array of `n` evenly spaced values between `x0` and `x1`
+- `linspace(x0, x1, n, end=false)` — generate an array of `n` evenly spaced values between `x0` and `x1` (including `x1` if `end` is true)
 - `enumerate(arr)` — pair each element of array `arr` with its index
 - `repeat(x, n)` — repeat array `x` a total of `n` times
 - `meshgrid(x, y)` — create a mesh grid from arrays `x` and `y`

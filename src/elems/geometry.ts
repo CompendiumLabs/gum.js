@@ -191,7 +191,7 @@ class Ray extends Line {
         const [ rx, ry ] = ensure_vector(size, 2)
         const points: Point[] = [
             [ x, y ],
-            polar([ [ rx, ry ], theta ], [ x, y ])
+            polar(theta, [ rx, ry ], [ x, y ])
         ]
         super({ points, ...attr })
         this.args = args
@@ -719,7 +719,7 @@ class Arc extends Path {
         if (start == null || end == null) throw new Error('Must provide `start` and `end` angles')
         const [ theta0, theta1 ] = upright_limits([ start, end ])
         const large = (theta1 - theta0) > 180
-        const [ point0, point1 ] = [ theta0, theta1 ].map(t => polar([0.5, t], [0.5, 0.5]))
+        const [ point0, point1 ] = [ theta0, theta1 ].map(t => polar(t, 0.5, [0.5, 0.5]))
         const children = [ new MoveCmd(point0), new ArcCmd(point1, 0.5, true, large) ]
         super({ children, upright, ...attr })
         this.args = args

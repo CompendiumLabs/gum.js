@@ -77,22 +77,17 @@ Parameters:
 
 **Example**
 
-Prompt: draw a diagonal line in blue and a cup shaped line in red
+Prompt: draw a piecewise line spiraling outwards (with dots at vertices)
 
 Generated code:
 ```jsx
-<Group>
-  <Line stroke={blue} points={[
-    [0.2, 0.2],
-    [0.8, 0.8],
-  ]} />
-  <Line stroke={red} points={[
-    [0.3, 0.3],
-    [0.3, 0.7],
-    [0.7, 0.7],
-    [0.7, 0.3],
-  ]} />
-</Group>
+const spiral = linspace(0, 5, 25).map(t => polar(360 * t, t/5))
+return <Box margin>
+  <Graph coord={[-1, -1, 1, 1]}>
+    <Line points={spiral} />
+    <Points points={spiral} point-size={0.03} />
+  </Graph>
+</Box>
 ```
 
 ## Shape
@@ -108,23 +103,17 @@ Parameters:
 
 **Example**
 
-Prompt: draw a blue triangle with a semi-transparent green square overlaid on top
+Prompt: draw a stop sign
 
 Generated code:
 ```jsx
-<Group>
-  <Shape fill={blue} stroke={none} points={[
-    [0.5, 0.2],
-    [0.8, 0.8],
-    [0.2, 0.8]
-  ]} />
-  <Shape fill={green} stroke={none} opacity={0.5} points={[
-    [0.3, 0.3],
-    [0.7, 0.3],
-    [0.7, 0.7],
-    [0.3, 0.7]
-  ]} />
-</Group>
+const hexagon = linspace(0, 360, 8, false).map(t => polar(t))
+return <Box fill="#bbb" rounded padding margin>
+  <Graph xlim={[-1, 1]} ylim={[-1, 1]} aspect={1}>
+    <Shape points={hexagon} fill="#CC0202" stroke={white} stroke_width={20} spin={180/8} />
+    <Text pos={[0, 0]} xsize={1.5} color={white} font-weight={bold}>STOP</Text>
+  </Graph>
+</Box>
 ```
 
 ## Fill
@@ -187,9 +176,11 @@ const points = [
   [0.50, 0.50],
 ]
 return <Frame rounded margin>
-  <Spline closed stroke={blue} fill={gray} points={points} />
-  <Shape stroke={red} points={points} />
-  <Points point-size={0.02} points={points} />
+  <Group>
+    <Spline closed stroke={blue} fill={gray} points={points} />
+    <Shape stroke={red} points={points} />
+    <Points point-size={0.02} points={points} />
+  </Group>
 </Frame>
 ```
 
@@ -253,16 +244,14 @@ Generated code:
 ```jsx
 // vertices marked as black dots to show how the corners are rounded
 const points = [
-  [0.10, 0.20],
-  [0.40, 0.20],
-  [0.40, 0.80],
-  [0.70, 0.80],
-  [0.70, 0.50],
-  [0.90, 0.50],
+  [-0.8,  0.6], [-0.2,  0.6], [-0.2, -0.6],
+  [ 0.4, -0.6], [ 0.4,  0.0], [ 0.8,  0.0],
 ]
 return <Frame margin>
-  <Line opacity={0.3} points={points} />
-  <RoundedLine stroke={blue} stroke-width={2} radius={0.08} points={points} />
-  <Points point-size={0.015} points={points} />
+  <Graph aspect coord={[-1, -1, 1, 1]}>
+    <Line opacity={0.3} points={points} />
+    <RoundedLine stroke={blue} stroke-width={2} radius={0.15} points={points} />
+    <Points point-size={0.03} points={points} />
+  </Graph>
 </Frame>
 ```

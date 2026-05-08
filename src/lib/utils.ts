@@ -223,11 +223,11 @@ function range(ia: number, ib?: number, step: number = 1): number[] {
     return [...Array(n).keys()].map(i => i0 + step * i)
 }
 
-function linspace(x0: number, x1: number, n: number, end: boolean = true): number[] {
-    if (end && n == 1) return [ 0.5 * (x0 + x1) ]
-    const n1 = end ? n : n + 1
-    const step = (x1 - x0) / (n1 - 1)
-    const values = [...Array(n1).keys()].map(i => x0 + step * i)
+function linspace(x0: number, x1: number, num: number, end: boolean = true): number[] {
+    if (end && num == 1) return [ 0.5 * (x0 + x1) ]
+    const num1 = end ? num : num + 1
+    const step = (x1 - x0) / (num1 - 1)
+    const values = [...Array(num1).keys()].map(i => x0 + step * i)
     return end ? values : values.slice(0, -1)
 }
 
@@ -799,7 +799,7 @@ function angle_direc(angle: Angle): Point {
     return [ cos(d2r * angle), sin(d2r * angle) ]
 }
 
-function polar([radius, angle]: Polar, center?: Point): Point {
+function polar(angle: number, radius: number | Size = 1, center?: Point): Point {
     const offset = mul2(radius, angle_direc(angle))
     return center ? add2(center, offset) : offset
 }
