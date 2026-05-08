@@ -1,14 +1,14 @@
 // network elements
 
 import { THEME } from '../lib/theme'
-import { abs, sub2, mul2, check_singleton, is_string, rect_center, side_direc, prefix_split } from '../lib/utils'
+import { abs, sub2, mul2, check_singleton, is_string, rect_center, side_direc, prefix_split, join_limits } from '../lib/utils'
 
 import { Context, Element, Group, ensure_children } from './core'
-import type { ElementArgs, GroupArgs } from './core'
 import { Frame } from './layout'
 import { Arrow } from './geometry'
 import { Text } from './text'
 
+import type { ElementArgs, GroupArgs } from './core'
 import type { AlignValue, Point, Side } from '../lib/types'
 
 //
@@ -135,8 +135,9 @@ class Edge extends Element {
 
 class Network extends Group {
     constructor(args: GroupArgs = {}) {
-        const { children: children0, coord, ...attr0 } = THEME(args, 'Network')
+        const { children: children0, xlim, ylim, coord: coord0, ...attr0 } = THEME(args, 'Network')
         const [ node_attr, edge_attr, attr ] = prefix_split([ 'node', 'edge' ], attr0)
+        const coord = coord0 ?? join_limits({ h: xlim, v: ylim })
         const children = ensure_children(children0)
 
         // process nodes and make label map

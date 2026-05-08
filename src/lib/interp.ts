@@ -53,12 +53,18 @@ function cubic_spline_data<T extends Point | MPoint>(points: T[], { start_dir, e
     })
 }
 
+function cubic_spline_tangent(pos1: Point | MPoint, pos2: Point | MPoint, dir: Grad | undefined, tan: Point): Point {
+    if (dir == null) return tan
+    const delta = squeeze_mpoint(sub2m(pos2, pos1)).map(abs)
+    const scale = Math.max(...delta)
+    return mul2(dir, scale)
+}
+
 function cubic_spline_points({ pos1, pos2, dir1, dir2, tan1, tan2, curve = 0.5 }: SplineData<Point>): [Point, Point, Point, Point] {
 
     // use dir if provided, otherwise use tan
-    const dist = squeeze_mpoint(sub2m(pos2, pos1)).map(abs) as Point
-    const tan1a = dir1 != null ? mul2(dir1, dist) as Point : tan1
-    const tan2a = dir2 != null ? mul2(dir2, dist) as Point : tan2
+    const tan1a = cubic_spline_tangent(pos1, pos2, dir1, tan1)
+    const tan2a = cubic_spline_tangent(pos1, pos2, dir2, tan2)
     if (tan1a == null || tan2a == null) throw new Error('Spline tangent must be defined')
 
     // compute scaled tangents and Bernstein controls in spline coordinates
@@ -166,5 +172,5 @@ function spline1d(points: Point[], { curve = 0.5 }: { curve?: number } = {}): (t
 // export
 //
 
-export { cubic_spline_data, cubic_spline_points, spline1d, spline2d }
+export { cubic_spline_data, cubic_spline_points, cubic_spline_tangent, spline1d, spline2d }
 export type { SplineData, SplineFuncArgs }

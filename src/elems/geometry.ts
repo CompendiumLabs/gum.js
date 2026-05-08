@@ -2,8 +2,8 @@
 
 import { THEME } from '../lib/theme'
 import { DEFAULTS as D, d2r, none, gray } from '../lib/const'
-import { is_boolean, is_scalar, is_array, ensure_vector, ensure_point, check_array, upright_limits, rounder, abs, rect_radial, make_mpoint, squeeze_mpoint, merge_points, broadcast_point, sub2m, add2, sub2, mul2, div2, norm, angle_direc, unit_direc, vector_angle, polar, prefix_split} from '../lib/utils'
-import { cubic_spline_data } from '../lib/interp'
+import { is_boolean, is_scalar, is_array, ensure_vector, ensure_point, check_array, upright_limits, rounder, abs, rect_radial, make_mpoint, merge_points, broadcast_point, add2, sub2, mul2, div2, norm, angle_direc, unit_direc, vector_angle, polar, prefix_split} from '../lib/utils'
+import { cubic_spline_data, cubic_spline_tangent } from '../lib/interp'
 import { Context, Element, Group, Rectangle } from './core'
 
 import type { Point, Rect, Limit, Grad, Attrs, MPoint, Orient, Rounded, Direc } from '../lib/types'
@@ -553,9 +553,8 @@ class CubicSplineCmd extends Command {
 
     args(ctx: Context): string {
         // use dir if provided, otherwise use tan
-        const dist = squeeze_mpoint(sub2m(this.pos2, this.pos1)).map(abs) as Point
-        const tan1 = this.dir1 != null ? mul2(this.dir1, dist) : this.tan1
-        const tan2 = this.dir2 != null ? mul2(this.dir2, dist) : this.tan2
+        const tan1 = cubic_spline_tangent(this.pos1, this.pos2, this.dir1, this.tan1)
+        const tan2 = cubic_spline_tangent(this.pos1, this.pos2, this.dir2, this.tan2)
         if (tan1 == null || tan2 == null) throw new Error('Spline tangent must be defined')
 
         // compute scaled tangents
