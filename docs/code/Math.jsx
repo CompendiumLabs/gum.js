@@ -1,10 +1,12 @@
-// embed a five point star in a circle. place red dots at its vertices.
-const verts = linspace(0, 360, 10, false).map((t, i) => {
-  const radius = i % 2 == 0 ? 1 : 0.5
-  return polar(90 + t, radius)
-})
-return <Graph aspect coord={[-1, -1, 1, 1]}>
-  <Circle pos={[0, 0]} size={2} stroke={darkgray} />
-  <Shape points={verts} stroke={blue} stroke-width={2} />
-  {verts.map(pos => <Dot pos={pos} size={0.05} fill={red} />)}
-</Graph>
+// draw a spirograph in a box for a set of example parameters
+const [R, r, d, k] = [10, 7, 4, 7]
+const fx = t => (R - r) * cos(t) + d * cos(((R - r) / r) * t)
+const fy = t => (R - r) * sin(t) - d * sin(((R - r) / r) * t)
+return <TitleFrame title="Spirograph" padding={0.2} margin rounded>
+  <Graph aspect coord={[-R, -R, R, R]}>
+    <Circle pos={[0, 0]} size={2*R} stroke={darkgray} stroke-dasharray={10} />
+    <Circle pos={[0, 0]} size={2*(R - r)} stroke-dasharray={5} />
+    <SymSpline fx={fx} fy={fy} tlim={[0, 2*pi*k]} stroke={blue} stroke-width={2} />
+  </Graph>
+  <Span pos={[0.5, 1.1]} size={[1, 0.05]} font-family={mono}>R = 10 | r = 7 | d = 4</Span>
+</TitleFrame>
