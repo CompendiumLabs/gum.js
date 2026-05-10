@@ -442,15 +442,15 @@ class VMesh extends Mesh {
 
 class Mesh2D extends Group {
     constructor(args: Mesh2DArgs = {}) {
-        let { children: children0, locs, xlocs, ylocs, direc = 'h', xlim: xlim0, ylim: ylim0, coord: coord0, ...attr } = THEME(args, 'Mesh2D')
+        let { children: children0, locs, xlocs: xlocs0, ylocs: ylocs0, direc = 'h', xlim: xlim0, ylim: ylim0, coord: coord0, ...attr } = THEME(args, 'Mesh2D')
 
         // resolve true limits
         const { h: xlim = D.lim, v: ylim = D.lim } = resolve_limits(xlim0, ylim0, coord0 as Rect)
         const coord = join_limits({ h: xlim, v: ylim })
 
         // convert locs to arrays
-        xlocs = auto_array(xlocs, xlim)
-        ylocs = auto_array(ylocs, ylim)
+        const xlocs = auto_array(xlocs0 ?? locs, xlim)
+        const ylocs = auto_array(ylocs0 ?? locs, ylim)
 
         // create meshes
         const hmesh = new HMesh({ locs: xlocs, coord })
