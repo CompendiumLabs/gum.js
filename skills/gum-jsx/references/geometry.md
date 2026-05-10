@@ -81,7 +81,7 @@ Prompt: draw a piecewise line spiraling outwards (with dots at vertices)
 
 Generated code:
 ```jsx
-const spiral = linspace(0, 5, 25).map(t => polar(360 * t, t/5))
+const spiral = linspace(0, 5, 25).map(t => polar(2*pi * t, t/5))
 return <Box margin>
   <Graph coord={[-1, -1, 1, 1]}>
     <Line points={spiral} />
@@ -107,7 +107,7 @@ Prompt: draw a stop sign
 
 Generated code:
 ```jsx
-const hexagon = linspace(0, 360, 8, false).map(t => polar(t))
+const hexagon = linspace(0, 2*pi, 8, false).map(t => polar(t))
 return <Box fill="#bbb" rounded padding margin>
   <Graph xlim={[-1, 1]} ylim={[-1, 1]} aspect={1}>
     <Shape points={hexagon} fill="#CC0202" stroke={white} stroke_width={20} spin={180/8} />

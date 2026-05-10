@@ -29,7 +29,7 @@ Here we collect a variety of global mathematical functions and constants. You ca
 - `round(x)` — the rounding function
 - `clamp(x, lim=[0, 1])` — clamp `x` to the range `lim`
 - `rescale(x, lim=[0, 1])` — linearly rescale `x` to the range `lim`
-- `polar(angle, radius=1, center=[0, 0])` — convert polar coordinates (`angle` in degrees, `radius` scalar or size vector) to a 2D point around `center`
+- `polar(theta, radius=1, center=[0, 0])` — convert polar coordinates (`theta` in radians, `radius` scalar or size vector) to a 2D point around `center`
 
 Angles use gum's usual screen-space convention: `0` points right and `90` points down.
 

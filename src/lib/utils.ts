@@ -795,12 +795,16 @@ function vector_angle(vector: Point): number {
     return r2d * Math.atan2(y, x)
 }
 
-function angle_direc(angle: Angle): Point {
-    return [ cos(d2r * angle), sin(d2r * angle) ]
+function radian_direc(angle: number): Point {
+    return [ cos(angle), sin(angle) ]
 }
 
-function polar(angle: number, radius: number | Size = 1, center?: Point): Point {
-    const offset = mul2(radius, angle_direc(angle))
+function angle_direc(angle: number): Point {
+    return radian_direc(d2r * angle)
+}
+
+function polar(theta: number, radius: number | Size = 1, center?: Point): Point {
+    const offset = mul2(radius, radian_direc(theta))
     return center ? add2(center, offset) : offset
 }
 

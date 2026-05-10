@@ -27,7 +27,7 @@ const bobRad = 0.075
 const arcRad = 0.25
 
 // Computed positions
-const rodRot = 90 - rodAng
+const rodRot = d2r * (90 - rodAng)
 const eqnY = pivotY + rodLen
 const [ bobX, bobY ] = polar(rodRot, rodLen, [pivotX, pivotY])
 const [ midX, midY ] = polar(rodRot, 0.50 * rodLen, [pivotX, pivotY])

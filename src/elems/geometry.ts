@@ -716,8 +716,9 @@ class Arc extends Path {
     constructor(args: ArcArgs = {}) {
         const { start, end, upright = true, ...attr } = THEME(args, 'Arc')
         if (start == null || end == null) throw new Error('Must provide `start` and `end` angles')
-        const [ theta0, theta1 ] = upright_limits([ start, end ])
-        const large = (theta1 - theta0) > 180
+        const [ angle0, angle1 ] = upright_limits([ start, end ])
+        const large = (angle1 - angle0) > 180
+        const [ theta0, theta1 ] = [ d2r * angle0, d2r * angle1 ]
         const [ point0, point1 ] = [ theta0, theta1 ].map(t => polar(t, 0.5, [0.5, 0.5]))
         const children = [ new MoveCmd(point0), new ArcCmd(point1, 0.5, true, large) ]
         super({ children, upright, ...attr })

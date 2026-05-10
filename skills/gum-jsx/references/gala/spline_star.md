@@ -19,8 +19,8 @@ const theta0 = linspace(0, 2 * pi, n, false).map(t => t - pi / 2)
 const theta1 = theta0.map(t => t + pi / n)
 
 // get inner/outer point positions
-const points0 = theta0.map(t => polar(t * r2d))
-const points1 = theta1.map(t => polar(t * r2d, R))
+const points0 = theta0.map(t => polar(t))
+const points1 = theta1.map(t => polar(t, R))
 const points = zip(points0, points1).flat()
 
 // return full spline

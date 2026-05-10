@@ -6,6 +6,7 @@ Flexible interface to generate smooth two-dimensional spline curves symbolically
 
 
 Parameters:
+- `f` — a function mapping t-values to `[x, y]` points
 - `fx`/`fy` — a function mapping from x-values, y-values, or t-values
 - `xlim`/`ylim`/`tlim` — a pair of numbers specifying variable limits
 - `xvals`/`yvals`/`tvals` — a list of x-values, y-values, or t-values to use

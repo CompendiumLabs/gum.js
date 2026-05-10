@@ -118,7 +118,7 @@ function adjust_rotate(rotate: number, prect: Rect, coord: Rect): number {
     const csize = rect_size(coord)
     const psize = rect_size(prect)
     const proj = div2(psize, csize)
-    const vec = polar(rotate, proj)
+    const vec = polar(d2r * rotate, proj)
     return vector_angle(vec)
 }
 

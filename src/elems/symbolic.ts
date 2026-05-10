@@ -39,12 +39,14 @@ interface SymArgsBase {
 }
 
 interface SymArgs extends SymArgsBase {
+    f?: ((t: number) => Point)
     fx?: ((t: number) => number)
     fy?: ((t: number) => number)
 }
 
 // determines actual values given combinations of limits, values, and functions
-function sympath({ fx, fy, xlim, ylim, tlim, xvals, yvals, tvals, N }: SymArgs = {}): [number[], number[], number[]] {
+function sympath({ f, fx, fy, xlim, ylim, tlim, xvals, yvals, tvals, N }: SymArgs = {}): [number[], number[], number[]] {
+    f = ensure_function(f)
     fx = ensure_function(fx)
     fy = ensure_function(fy)
 
@@ -76,7 +78,11 @@ function sympath({ fx, fy, xlim, ylim, tlim, xvals, yvals, tvals, N }: SymArgs =
     tvals = tvals ?? linspace(...tlim, N)
 
     // compute data values
-    if (fx != null && fy != null) {
+    if (f != null) {
+        const points = tvals.map(f)
+        xvals = points.map(([x, _y]) => x)
+        yvals = points.map(([_x, y]) => y)
+    } else if (fx != null && fy != null) {
         xvals = tvals.map(fx)
         yvals = tvals.map(fy)
     } else if (fy != null && xlim != null) {
@@ -119,7 +125,7 @@ interface SymPointsArgs extends SymArgs, GroupArgs {
 
 class SymPoints extends Group {
     constructor(args: SymPointsArgs = {}) {
-        const { fx, fy, point_size = D.point, point_shape: point_shape0, xlim: xlim0, ylim: ylim0, tlim, xvals, yvals, tvals, N, coord: coord0, ...attr0 } = THEME(args, 'SymPoints')
+        const { f, fx, fy, point_size = D.point, point_shape: point_shape0, xlim: xlim0, ylim: ylim0, tlim, xvals, yvals, tvals, N, coord: coord0, ...attr0 } = THEME(args, 'SymPoints')
         const [ spec, attr ] = spec_split(attr0)
         const fsize = ensure_function(point_size)
         const fshap = ensure_shapefunc(point_shape0 ?? new Dot(attr))
@@ -127,7 +133,7 @@ class SymPoints extends Group {
 
         // compute point values
         const [ tvals1, xvals1, yvals1 ] = sympath({
-            fx, fy, xlim, ylim, tlim, xvals, yvals, tvals, N
+            f, fx, fy, xlim, ylim, tlim, xvals, yvals, tvals, N
         })
 
         // make points
@@ -158,12 +164,12 @@ interface SymLineArgs extends SymArgs, LineArgs {
 
 class SymLine extends Line {
     constructor(args: SymLineArgs = {}) {
-        const { fx, fy, xlim: xlim0, ylim: ylim0, tlim, xvals, yvals, tvals, N, coord: coord0, ...attr } = THEME(args, 'SymLine')
+        const { f, fx, fy, xlim: xlim0, ylim: ylim0, tlim, xvals, yvals, tvals, N, coord: coord0, ...attr } = THEME(args, 'SymLine')
         const { xlim, ylim } = resolve_limits(xlim0, ylim0, coord0 as Rect)
 
         // compute path values
         const [ _tvals1, xvals1, yvals1 ] = sympath({
-            fx, fy, xlim, ylim, tlim, xvals, yvals, tvals, N
+            f, fx, fy, xlim, ylim, tlim, xvals, yvals, tvals, N
         })
 
         // get valid point pairs
@@ -187,12 +193,12 @@ interface SymSplineArgs extends SymArgs, SplineArgs {
 
 class SymSpline extends Spline {
     constructor(args: SymSplineArgs = {}) {
-        const { fx, fy, xlim: xlim0, ylim: ylim0, tlim, xvals, yvals, tvals, N, coord: coord0, curve, ...attr } = THEME(args, 'SymSpline')
+        const { f, fx, fy, xlim: xlim0, ylim: ylim0, tlim, xvals, yvals, tvals, N, coord: coord0, curve, ...attr } = THEME(args, 'SymSpline')
         const { xlim, ylim } = resolve_limits(xlim0, ylim0, coord0 as Rect)
 
         // compute path values
         const [ _tvals1, xvals1, yvals1 ] = sympath({
-            fx, fy, xlim, ylim, tlim, xvals, yvals, tvals, N
+            f, fx, fy, xlim, ylim, tlim, xvals, yvals, tvals, N
         })
 
         // get valid point pairs
@@ -216,12 +222,12 @@ interface SymShapeArgs extends SymArgs, ElementArgs {
 
 class SymShape extends Shape {
     constructor(args: SymShapeArgs = {}) {
-        const { fx, fy, xlim: xlim0, ylim: ylim0, tlim, xvals, yvals, tvals, N, coord: coord0, ...attr } = THEME(args, 'SymShape')
+        const { f, fx, fy, xlim: xlim0, ylim: ylim0, tlim, xvals, yvals, tvals, N, coord: coord0, ...attr } = THEME(args, 'SymShape')
         const { xlim, ylim } = resolve_limits(xlim0, ylim0, coord0 as Rect)
 
         // compute point values
         const [ _tvals1, xvals1, yvals1 ] = sympath({
-            fx, fy, xlim, ylim, tlim, xvals, yvals, tvals, N
+            f, fx, fy, xlim, ylim, tlim, xvals, yvals, tvals, N
         })
 
         // get valid point pairs
@@ -241,23 +247,25 @@ class SymShape extends Shape {
 //
 
 interface SymFillArgs extends SymArgsBase, GroupArgs {
+    f1?: ((t: number) => Point)
     fx1?: ((t: number) => number)
     fy1?: ((t: number) => number)
+    f2?: ((t: number) => Point)
     fx2?: ((t: number) => number)
     fy2?: ((t: number) => number)
 }
 
 class SymFill extends Fill {
     constructor(args: SymFillArgs = {}) {
-        const { fx1, fy1, fx2, fy2, xlim: xlim0, ylim: ylim0, tlim, xvals, yvals, tvals, N, stroke = none, fill = gray, coord: coord0, ...attr } = THEME(args, 'SymFill')
+        const { f1, fx1, fy1, f2, fx2, fy2, xlim: xlim0, ylim: ylim0, tlim, xvals, yvals, tvals, N, stroke = none, fill = gray, coord: coord0, ...attr } = THEME(args, 'SymFill')
         const { xlim, ylim } = resolve_limits(xlim0, ylim0, coord0 as Rect)
 
         // compute point values
         const [ _tvals1, xvals1, yvals1 ] = sympath({
-            fx: fx1, fy: fy1, xlim, ylim, tlim, xvals, yvals, tvals, N
+            f: f1, fx: fx1, fy: fy1, xlim, ylim, tlim, xvals, yvals, tvals, N
         })
         const [ _tvals2, xvals2, yvals2 ] = sympath({
-            fx: fx2, fy: fy2, xlim, ylim, tlim, xvals, yvals, tvals, N
+            f: f2, fx: fx2, fy: fy2, xlim, ylim, tlim, xvals, yvals, tvals, N
         })
 
         // get valid point pairs
