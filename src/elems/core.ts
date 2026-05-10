@@ -2,7 +2,7 @@
 
 import { THEME } from '../lib/theme'
 import { DEFAULTS as D, svgns, sans, light, blue, red, d2r } from '../lib/const'
-import { is_scalar, abs, cos, sin, tan, cot, mul2, div2, filter_object, expand_rect, rect_box, cbox_rect, rect_cbox, merge_points, merge_rects, ensure_vector, broadcast_point, rounder, heavisign, abs_min, abs_max, rect_radial, rotate_aspect, remap_rect, rescaler, resizer, rect_size, vector_angle, polard, upright_rect } from '../lib/utils'
+import { is_scalar, abs, cos, sin, tan, cot, mul2, div2, filter_object, expand_rect, rect_box, radial_rect, cbox_rect, rect_cbox, merge_points, merge_rects, ensure_vector, broadcast_point, rounder, heavisign, abs_min, abs_max, rect_radial, rotate_aspect, remap_rect, rescaler, resizer, rect_size, vector_angle, polard, upright_rect } from '../lib/utils'
 import { random } from '../lib/rng'
 
 import type { Point, Rect, Size, AlignValue, Align, Side, Attrs, MNumber, MPoint, Spec } from '../lib/types'
@@ -259,7 +259,7 @@ function props_repr(d: Attrs, prec: number): string {
 
 // reserved keys
 const SPEC_KEYS = [ 'rect', 'coord', 'aspect', 'aspect0', 'expand', 'align', 'upright', 'offset', 'rotate', 'rotate_adjust', 'rotate_invar' ]
-const HELP_KEYS = [ 'pos', 'size', 'xsize', 'ysize', 'flex', 'spin', 'orient' ]
+const HELP_KEYS = [ 'pos', 'size', 'xsize', 'ysize', 'rad', 'xrad', 'yrad', 'flex', 'spin', 'orient' ]
 const EXTR_KEYS = [ 'stack_size' ]
 const RESERVED_KEYS = [ ...SPEC_KEYS, ...HELP_KEYS, ...EXTR_KEYS ]
 
@@ -300,6 +300,9 @@ interface ElementArgs extends SpecArgs {
     size?: number | Size
     xsize?: number
     ysize?: number
+    rad?: number | Size
+    xrad?: number
+    yrad?: number
     flex?: boolean
     spin?: number
     orient?: number
@@ -316,7 +319,7 @@ class Element {
     attr: Attrs
 
     constructor(args: ElementArgs = {}) {
-        const { tag, unary, children, pos, size, xsize, ysize, flex, spin, orient, ...attr0 } = args
+        const { tag, unary, children, pos, size: size0, xsize: xsize0, ysize: ysize0, rad, xrad, yrad, flex, spin, orient, ...attr0 } = args
         const [ spec, attr ] = spec_split(attr0, false)
         this.args = args
 
@@ -332,7 +335,13 @@ class Element {
         this.spec = spec
         this.attr = attr
 
-        // handle pos/size conveniences
+        // handle rad/xrad/yrad conveniences
+        const size = rad != null ? mul2(rad, 2) : size0
+        const xsize = xrad != null ? 2 * xrad : xsize0
+        const ysize = yrad != null ? 2 * yrad : ysize0
+
+
+        // handle pos/size/rad conveniences
         if (pos != null || size != null || xsize != null || ysize != null) {
             const has_xy = xsize != null || ysize != null
             const size1 = has_xy ? [ xsize ?? 0, ysize ?? 0 ] as Point : undefined

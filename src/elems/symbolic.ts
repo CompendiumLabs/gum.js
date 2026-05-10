@@ -140,11 +140,9 @@ class SymPoints extends Group {
         const points = zip(tvals1, xvals1, yvals1).filter(not_null)
 
         // make children
-        const children = enumerate(points).map(([i, [t, x, y]]) => {
-            const sh = fshap(x, y, t, i)
-            const has_size = sh.args.size != null || sh.args.xsize != null || sh.args.ysize != null
-            return sh.clone({ pos: [x, y], ...(has_size ? {} : { size: fsize(x, y, t, i) }) })
-        })
+        const children = enumerate(points).map(([i, [t, x, y]]) =>
+            fshap(x, y, t, i).clone({ pos: [x, y], size: fsize(x, y, t, i) })
+        )
 
         // compute coords
         const coord = coord0 ?? detect_coords(xvals1, yvals1, xlim, ylim)

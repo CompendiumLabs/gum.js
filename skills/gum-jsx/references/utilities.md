@@ -149,9 +149,10 @@ Prompt: load "data.csv" and plot each row as a blue dot
 
 Generated code:
 ```jsx
-return <Graph xlim={[0, 10]} ylim={[0, 10]}>
+return <Graph aspect xlim={[0, 10]} ylim={[0, 10]}>
+  <Mesh2D xlim={[0, 10]} ylim={[0, 10]} xlocs={10} ylocs={10} opacity={0.5} />
   {loadTable('data.csv').map(({ x, y }) =>
-    <Dot pos={[x, y]} rad={0.1} fill={blue} />
+    <Dot pos={[x, y]} size={0.5} fill={blue} />
   )}
 </Graph>
 ```

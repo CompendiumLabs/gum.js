@@ -5,11 +5,10 @@ const shapes = [
 ]
 
 const RegularPolygon = ({ n, ...args }) =>
-  <SymShape {...args}
-    aspect spin={90*(n-2)/n}
+  <SymShape {...args} aspect
     xlim={[-1, 1]} ylim={[-1, 1]}
-    tvals={linspace(0, 2*pi, n+1)}
-    fx={cos} fy={sin}
+    tvals={linspace(0, 2*pi, n, false)}
+    f={t => polar(t+pi/2*(n-2)/n)}
   />
 
 return <Slide title="Simple Regular Polygons" wrap={25}>

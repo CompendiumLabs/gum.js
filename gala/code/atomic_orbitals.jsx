@@ -27,8 +27,7 @@ const dz2_r = (t) => 0.28 * abs(3 * cos(t) ** 2 - 1)
 // plot radial orbital lobes via SymSpline
 const OrbitalLobe = ({ rfn, t0, t1, sign }) =>
   <SymSpline N={50} tlim={[t0, t1]}
-    fx={t => rfn(t) * cos(t)}
-    fy={t => rfn(t) * sin(t)}
+    f={t => polar(t, rfn(t))}
     stroke={sign ? pos_col : neg_col}
     fill={sign ? pos_fill : neg_fill}
     stroke-width={2} opacity={0.6}
