@@ -4,5 +4,5 @@
   <Node id="test" pos={[0.75, 0.25]} wrap={6}>This is a test of wrapping capabilities</Node>
   <Node id="ball" pos={[0.75, 0.75]}><Ellipse aspect={1.5} fill={blue}/></Node>
   <Edge start="hello" end="test" />
-  <Edge start="hello" end="ball" start-side="s" curve={3} />
+  <Edge start="hello" end="ball" start-side="s" />
 </Network>
