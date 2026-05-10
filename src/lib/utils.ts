@@ -675,21 +675,21 @@ type LimitArgs = {
     [key in Orient]?: Limit
 }
 
-function join_limits({ v, h }: LimitArgs = {}): Rect {
+function join_limits({ h, v }: LimitArgs = {}): Rect {
     const [ vlo, vhi ] = v ?? D.lim
     const [ hlo, hhi ] = h ?? D.lim
     return [ hlo, vlo, hhi, vhi ]
 }
 
-function split_limits(coord: Rect | undefined): { xlim?: Limit, ylim?: Limit } {
+function split_limits(coord: Rect | undefined): { h?: Limit, v?: Limit } {
     if (coord == null) return {}
     const [ xlo, ylo, xhi, yhi ] = coord
-    return { xlim: [ xlo, xhi ], ylim: [ ylo, yhi ] }
+    return { h: [ xlo, xhi ], v: [ ylo, yhi ] }
 }
 
-function resolve_limits(xlim: Limit | undefined, ylim: Limit | undefined, coord: Rect | undefined): { xlim: Limit, ylim: Limit } {
-    const { xlim: xlim0, ylim: ylim0 } = split_limits(coord)
-    return { xlim: xlim ?? xlim0!, ylim: ylim ?? ylim0! }
+function resolve_limits(xlim: Limit | undefined, ylim: Limit | undefined, coord: Rect | undefined): { h: Limit | undefined, v: Limit | undefined } {
+    const { h: xlim0, v: ylim0 } = split_limits(coord)
+    return { h: xlim ?? xlim0, v: ylim ?? ylim0 }
 }
 
 function detect_coords(xvals: number[], yvals: number[], xlim: Limit | undefined, ylim: Limit | undefined): Rect {

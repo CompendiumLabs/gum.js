@@ -2,7 +2,7 @@
 
 import { THEME } from '../lib/theme'
 import { DEFAULTS as D, none, blue, white } from '../lib/const'
-import { sign, abs, linspace, invert_orient, join_limits, ensure_vector, is_scalar, is_string, is_object, ensure_singleton, check_singleton, rounder, enumerate, aspect_invariant, rect_aspect, merge_rects, expand_limits, flip_rect, resolve_limits, smoothstep, prefix_split, prefix_join } from '../lib/utils'
+import { sign, abs, linspace, invert_orient, join_limits, split_limits, ensure_vector, is_scalar, is_string, is_object, ensure_singleton, check_singleton, rounder, enumerate, aspect_invariant, rect_aspect, merge_rects, expand_limits, flip_rect, resolve_limits, smoothstep, prefix_split, prefix_join } from '../lib/utils'
 import { Span } from './text'
 
 import { Element, Group, Spacer, spec_split, is_element, ensure_children } from './core'
@@ -416,10 +416,11 @@ interface LegendArgs extends ElementArgs {
 
 class Mesh extends Scale {
     constructor(args: MeshArgs = {}) {
-        const { children: children0, locs: locs0, direc = 'h', lim = D.lim, span = D.lim, ...attr } = THEME(args, 'Mesh')
-        const locs = auto_array(locs0, lim)
-        const coord = join_limits({ [direc]: lim, [invert_orient(direc)]: span })
-        super({ locs, direc, coord, span, ...attr })
+        const { children: children0, locs: locs0, direc = 'h', xlim, ylim, coord, ...attr } = THEME(args, 'Mesh')
+        const { [direc]: lim, [invert_orient(direc)]: span } = resolve_limits(xlim, ylim, coord as Rect)
+        const locs = auto_array(locs0, lim ?? D.lim)
+        console.log('lims', locs, lim, span, xlim, ylim, coord)
+        super({ locs, direc, span, xlim, ylim, coord, ...attr })
         this.args = args
     }
 }
@@ -442,21 +443,19 @@ class VMesh extends Mesh {
 
 class Mesh2D extends Group {
     constructor(args: Mesh2DArgs = {}) {
-        let { children: children0, locs, xlocs, ylocs, direc = 'h', xlim = D.lim, ylim = D.lim, xspan, yspan, ...attr } = THEME(args, 'Mesh2D')
+        let { children: children0, locs, xlocs, ylocs, direc = 'h', xlim: xlim0, ylim: ylim0, coord: coord0, ...attr } = THEME(args, 'Mesh2D')
 
-        // set default values
-        xlocs ??= locs
-        ylocs ??= locs
-        xspan ??= xlim
-        yspan ??= ylim
+        // resolve true limits
+        const { h: xlim = D.lim, v: ylim = D.lim } = resolve_limits(xlim0, ylim0, coord0 as Rect)
+        const coord = join_limits({ h: xlim, v: ylim })
 
         // convert locs to arrays
         xlocs = auto_array(xlocs, xlim)
         ylocs = auto_array(ylocs, ylim)
 
         // create meshes
-        const hmesh = new HMesh({ locs: xlocs, span: yspan, lim: xlim, ...attr })
-        const vmesh = new VMesh({ locs: ylocs, span: xspan, lim: ylim, ...attr })
+        const hmesh = new HMesh({ locs: xlocs, coord })
+        const vmesh = new VMesh({ locs: ylocs, coord })
 
         // pass to Group
         super({ children: [ hmesh, vmesh ], ...attr })
@@ -528,7 +527,7 @@ function outer_limits(children: Element[], { xlim, ylim, padding = 0 }: { xlim?:
 
     // pull in child coordinate system
     const coord0 = merge_rects(children.map((c: Element) => c.graphCoord()))
-    const { xlim: xlim0, ylim: ylim0 } = resolve_limits(xlim, ylim, coord0)
+    const { h: xlim0, v: ylim0 } = resolve_limits(xlim, ylim, coord0)
 
     // expand with padding
     const [ xpad, ypad ] = ensure_vector(padding, 2)
@@ -685,7 +684,7 @@ class Plot extends Box {
         // automatic xgrid generation
         if (xgrid != null && xgrid !== false) {
             const locs = (xgrid === true && xaxis != null && xaxis !== false) ? xaxis.locs : xgrid
-            const xgrid_elem = new HMesh({ locs: locs as number[], lim: xlim, rect: coord, ...xgrid_attr })
+            const xgrid_elem = new HMesh({ locs: locs as number[], ...xgrid_attr })
             bg_elems.unshift(xgrid_elem)
         } else {
             xgrid = undefined
@@ -694,7 +693,7 @@ class Plot extends Box {
         // automatic ygrid generation
         if (ygrid != null && ygrid !== false) {
             const locs = (ygrid === true && yaxis != null && yaxis !== false) ? yaxis.locs : ygrid
-            const ygrid_elem = new VMesh({ locs: locs as number[], lim: ylim, rect: coord, ...ygrid_attr })
+            const ygrid_elem = new VMesh({ locs: locs as number[], ...ygrid_attr })
             bg_elems.unshift(ygrid_elem)
         } else {
             ygrid = undefined

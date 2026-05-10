@@ -129,7 +129,7 @@ class SymPoints extends Group {
         const [ spec, attr ] = spec_split(attr0)
         const fsize = ensure_function(point_size)
         const fshap = ensure_shapefunc(point_shape0 ?? new Dot(attr))
-        const { xlim, ylim } = resolve_limits(xlim0, ylim0, coord0 as Rect)
+        const { h: xlim, v: ylim } = resolve_limits(xlim0, ylim0, coord0 as Rect)
 
         // compute point values
         const [ tvals1, xvals1, yvals1 ] = sympath({
@@ -163,7 +163,7 @@ interface SymLineArgs extends SymArgs, LineArgs {
 class SymLine extends Line {
     constructor(args: SymLineArgs = {}) {
         const { f, fx, fy, xlim: xlim0, ylim: ylim0, tlim, xvals, yvals, tvals, N, coord: coord0, ...attr } = THEME(args, 'SymLine')
-        const { xlim, ylim } = resolve_limits(xlim0, ylim0, coord0 as Rect)
+        const { h: xlim, v: ylim } = resolve_limits(xlim0, ylim0, coord0 as Rect)
 
         // compute path values
         const [ _tvals1, xvals1, yvals1 ] = sympath({
@@ -192,7 +192,7 @@ interface SymSplineArgs extends SymArgs, SplineArgs {
 class SymSpline extends Spline {
     constructor(args: SymSplineArgs = {}) {
         const { f, fx, fy, xlim: xlim0, ylim: ylim0, tlim, xvals, yvals, tvals, N, coord: coord0, curve, ...attr } = THEME(args, 'SymSpline')
-        const { xlim, ylim } = resolve_limits(xlim0, ylim0, coord0 as Rect)
+        const { h: xlim, v: ylim } = resolve_limits(xlim0, ylim0, coord0 as Rect)
 
         // compute path values
         const [ _tvals1, xvals1, yvals1 ] = sympath({
@@ -221,7 +221,7 @@ interface SymShapeArgs extends SymArgs, ElementArgs {
 class SymShape extends Shape {
     constructor(args: SymShapeArgs = {}) {
         const { f, fx, fy, xlim: xlim0, ylim: ylim0, tlim, xvals, yvals, tvals, N, coord: coord0, ...attr } = THEME(args, 'SymShape')
-        const { xlim, ylim } = resolve_limits(xlim0, ylim0, coord0 as Rect)
+        const { h: xlim, v: ylim } = resolve_limits(xlim0, ylim0, coord0 as Rect)
 
         // compute point values
         const [ _tvals1, xvals1, yvals1 ] = sympath({
@@ -256,7 +256,7 @@ interface SymFillArgs extends SymArgsBase, GroupArgs {
 class SymFill extends Fill {
     constructor(args: SymFillArgs = {}) {
         const { f1, fx1, fy1, f2, fx2, fy2, xlim: xlim0, ylim: ylim0, tlim, xvals, yvals, tvals, N, stroke = none, fill = gray, coord: coord0, ...attr } = THEME(args, 'SymFill')
-        const { xlim, ylim } = resolve_limits(xlim0, ylim0, coord0 as Rect)
+        const { h: xlim, v: ylim } = resolve_limits(xlim0, ylim0, coord0 as Rect)
 
         // compute point values
         const [ _tvals1, xvals1, yvals1 ] = sympath({
@@ -322,7 +322,7 @@ interface SymFieldArgs extends SymArgs, GroupArgs {
 class SymField extends SymPoints {
     constructor(args: SymFieldArgs = {}) {
         const { func, xlim: xlim0, ylim: ylim0, N = 10, point_size: point_size0, shape: shape0, coord: coord0, ...attr } = THEME(args, 'SymField')
-        const { xlim, ylim } = resolve_limits(xlim0, ylim0, coord0 as Rect)
+        const { h: xlim, v: ylim } = resolve_limits(xlim0, ylim0, coord0 as Rect)
         const shape = ensure_shapefunc(shape0 ?? default_arrow)
         const point_size = point_size0 ?? 0.25 / N
 
