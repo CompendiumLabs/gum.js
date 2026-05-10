@@ -2,7 +2,7 @@
 
 import { THEME } from '../lib/theme'
 import { DEFAULTS as D, svgns, sans, light, blue, red, d2r } from '../lib/const'
-import { is_scalar, abs, cos, sin, tan, cot, mul2, div2, filter_object, expand_rect, rect_box, cbox_rect, rect_cbox, merge_points, merge_rects, ensure_vector, broadcast_point, rounder, heavisign, abs_min, abs_max, rect_radial, rotate_aspect, remap_rect, rescaler, resizer, rect_size, vector_angle, polar, upright_rect } from '../lib/utils'
+import { is_scalar, abs, cos, sin, tan, cot, mul2, div2, filter_object, expand_rect, rect_box, cbox_rect, rect_cbox, merge_points, merge_rects, ensure_vector, broadcast_point, rounder, heavisign, abs_min, abs_max, rect_radial, rotate_aspect, remap_rect, rescaler, resizer, rect_size, vector_angle, polard, upright_rect } from '../lib/utils'
 import { random } from '../lib/rng'
 
 import type { Point, Rect, Size, AlignValue, Align, Side, Attrs, MNumber, MPoint, Spec } from '../lib/types'
@@ -118,7 +118,7 @@ function adjust_rotate(rotate: number, prect: Rect, coord: Rect): number {
     const csize = rect_size(coord)
     const psize = rect_size(prect)
     const proj = div2(psize, csize)
-    const vec = polar(d2r * rotate, proj)
+    const vec = polard(rotate, proj)
     return vector_angle(vec)
 }
 

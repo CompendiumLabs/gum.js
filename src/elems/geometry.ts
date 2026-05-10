@@ -1,8 +1,8 @@
 // geometry elements
 
 import { THEME } from '../lib/theme'
-import { DEFAULTS as D, d2r, none, gray } from '../lib/const'
-import { is_boolean, is_scalar, is_array, ensure_vector, ensure_point, check_array, upright_limits, rounder, abs, rect_radial, make_mpoint, merge_points, broadcast_point, add2, sub2, mul2, div2, norm, angle_direc, unit_direc, vector_angle, polar, prefix_split} from '../lib/utils'
+import { DEFAULTS as D, none, gray } from '../lib/const'
+import { is_boolean, is_scalar, is_array, ensure_vector, ensure_point, check_array, upright_limits, rounder, abs, rect_radial, make_mpoint, merge_points, broadcast_point, add2, sub2, mul2, div2, norm, angle_direc, unit_direc, vector_angle, polard, prefix_split} from '../lib/utils'
 import { cubic_spline_data, cubic_spline_tangent } from '../lib/interp'
 import { Context, Element, Group, Rectangle } from './core'
 
@@ -186,12 +186,11 @@ interface RayArgs extends LineArgs {
 class Ray extends Line {
     constructor(args: RayArgs = {}) {
         const { angle = 0, loc = D.pos, size = 0.5, ...attr } = THEME(args, 'Ray')
-        const theta = angle * d2r
         const [ x, y ] = loc
         const [ rx, ry ] = ensure_vector(size, 2)
         const points: Point[] = [
             [ x, y ],
-            polar(theta, [ rx, ry ], [ x, y ])
+            polard(angle, [ rx, ry ], [ x, y ])
         ]
         super({ points, ...attr })
         this.args = args
@@ -718,8 +717,7 @@ class Arc extends Path {
         if (start == null || end == null) throw new Error('Must provide `start` and `end` angles')
         const [ angle0, angle1 ] = upright_limits([ start, end ])
         const large = (angle1 - angle0) > 180
-        const [ theta0, theta1 ] = [ d2r * angle0, d2r * angle1 ]
-        const [ point0, point1 ] = [ theta0, theta1 ].map(t => polar(t, 0.5, [0.5, 0.5]))
+        const [ point0, point1 ] = [ angle0, angle1 ].map(t => polard(t, 0.5, [0.5, 0.5]))
         const children = [ new MoveCmd(point0), new ArcCmd(point1, 0.5, true, large) ]
         super({ children, upright, ...attr })
         this.args = args

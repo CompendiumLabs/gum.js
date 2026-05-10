@@ -16,11 +16,11 @@ const bobRad = 0.075
 const arcRad = 0.25
 
 // Computed positions
-const rodRot = d2r * (90 - rodAng)
+const rodRot = 90 - rodAng
 const eqnY = pivotY + rodLen
-const [ bobX, bobY ] = polar(rodRot, rodLen, [pivotX, pivotY])
-const [ midX, midY ] = polar(rodRot, 0.50 * rodLen, [pivotX, pivotY])
-const [ tenX, tenY ] = polar(rodRot, 0.75 * rodLen, [pivotX, pivotY])
+const [ bobX, bobY ] = polard(rodRot, rodLen, [pivotX, pivotY])
+const [ midX, midY ] = polard(rodRot, 0.50 * rodLen, [pivotX, pivotY])
+const [ tenX, tenY ] = polard(rodRot, 0.75 * rodLen, [pivotX, pivotY])
 
 return <Box margin={0.06}>
   <VStack spacing={0.05}>
