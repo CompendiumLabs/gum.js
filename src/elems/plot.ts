@@ -419,7 +419,6 @@ class Mesh extends Scale {
         const { children: children0, locs: locs0, direc = 'h', xlim, ylim, coord, ...attr } = THEME(args, 'Mesh')
         const { [direc]: lim, [invert_orient(direc)]: span } = resolve_limits(xlim, ylim, coord as Rect)
         const locs = auto_array(locs0, lim ?? D.lim)
-        console.log('lims', locs, lim, span, xlim, ylim, coord)
         super({ locs, direc, span, xlim, ylim, coord, ...attr })
         this.args = args
     }
