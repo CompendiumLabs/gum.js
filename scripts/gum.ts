@@ -5,7 +5,7 @@ import { readFileSync, writeFileSync } from 'fs'
 import { dirname, resolve } from 'path'
 
 import { evaluateGum } from '../src/eval'
-import { rasterizeSvg, formatImage, readStdin } from '../src/render'
+import { fitRasterSize, rasterizeSvg, formatImage, readStdin } from '../src/render'
 import { Element, Group } from '../src/elems/core'
 import type { CliArgs, LoadFile } from '../src/lib/types'
 import { devCommand } from './dev'
@@ -16,7 +16,7 @@ import { devCommand } from './dev'
 
 function transformArgs(cmd: Command) {
   const [ file0 ] = cmd.args
-  let { format, output, theme, background, size, width, height, dev } = cmd.opts()
+  let { format, output, theme, background, size, rasterSize, dev } = cmd.opts()
 
   // add white background for light theme
   if (theme == 'light' && background == null) background = 'white'
@@ -41,7 +41,7 @@ function transformArgs(cmd: Command) {
       : readFileSync(file, encoding as BufferEncoding)
   }
 
-  return { file, format, output, theme, background, size, width, height, dev, loadFile }
+  return { file, format, output, theme, background, size, rasterSize, dev, loadFile }
 }
 
 //
@@ -64,7 +64,7 @@ function convertToTree(elem: Element): any {
 //
 
 async function runCommand(args: CliArgs) {
-  const { file, format, output, theme, background, size: size0 = 1000, width, height, dev, loadFile } = args
+  const { file, format, output, theme, background, size: size0 = 1000, rasterSize, dev, loadFile } = args
 
   // divert to dev command if update is on
   if (dev) {
@@ -77,8 +77,6 @@ async function runCommand(args: CliArgs) {
 
   // evaluate gum with size
   const elem = evaluateGum(code, { size: size0, theme, loadFile })
-  const svg = format != 'json' ? elem.svg() : ''
-  const size = elem.size
 
   // rasterize output
   let out: string | Buffer
@@ -86,9 +84,15 @@ async function runCommand(args: CliArgs) {
     const tree = convertToTree(elem)
     out = JSON.stringify(tree, null, 2)
   } else if (format == 'svg') {
-    out = svg
+    out = elem.svg()
   } else if (format == 'png' || format == 'kitty') {
-    const dat = await rasterizeSvg(svg, { size, width, height, background })
+    let svg = elem.svg()
+    if (rasterSize != null) {
+      const [ rasterWidth, rasterHeight ] = fitRasterSize(elem.size, rasterSize)
+      const elem1 = elem.clone({ width: rasterWidth, height: rasterHeight })
+      svg = elem1.svg()
+    }
+    const dat = await rasterizeSvg(svg, { background })
     out = (format == 'kitty') ? (formatImage(dat) + '\n') : dat
   } else {
     throw new Error(`Unsupported output format: ${format}`)
@@ -112,9 +116,8 @@ program.name('gum')
   .option('-f, --format <format>', 'format to output')
   .option('-t, --theme <theme>', 'theme to use', 'light')
   .option('-b, --background <background>', 'background color')
-  .option('-s, --size <size>', 'size of the SVG', (value: string) => parseInt(value))
-  .option('-w, --width <width>', 'width of the PNG', (value: string) => parseInt(value))
-  .option('-h, --height <height>', 'height of the PNG', (value: string) => parseInt(value))
+  .option('-s, --size <size>', 'SVG/viewBox size', (value: string) => parseInt(value))
+  .option('-r, --raster-size <size>', 'max rasterized PNG size', (value: string) => parseInt(value))
   .option('-o, --output <output>', 'output file')
   .action(async function(this: Command) {
     const args = transformArgs(this)

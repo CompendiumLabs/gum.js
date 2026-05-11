@@ -5,6 +5,7 @@ import { createCanvas, loadImage, registerFont, type ImageData as CanvasImageDat
 import type { Size } from './lib/types'
 import { FONT_PATHS } from './fonts/fonts'
 import { light, regular, bold } from './lib/const'
+import { broadcast_point, is_string } from './lib/utils'
 
 // register bundled fonts so SVG <text> resolves consistently
 for (const [ family, path ] of Object.entries(FONT_PATHS)) {
@@ -19,8 +20,7 @@ for (const [ family, path ] of Object.entries(FONT_PATHS)) {
 
 interface RasterizeBaseArgs {
   size?: Size
-  width?: number
-  height?: number
+  rasterSize?: Size
   background?: string
 }
 
@@ -43,34 +43,23 @@ interface FormatImageArgs {
   cursorMovement?: boolean
 }
 
+function fitRasterSize([ w0, h0 ]: Size, rasterSize?: Size): Size {
+  if (rasterSize == null) return [ w0, h0 ]
+  const [ maxW, maxH ] = broadcast_point(rasterSize)
+  const scale = Math.min(maxW / w0, maxH / h0)
+  return [
+    Math.max(1, Math.round(w0 * scale)),
+    Math.max(1, Math.round(h0 * scale)),
+  ]
+}
+
 async function rasterizeSvg(svg: string | Buffer, args: RasterizePixelArgs): Promise<CanvasImageData>
 async function rasterizeSvg(svg: string | Buffer, args?: RasterizePngArgs): Promise<Buffer>
-async function rasterizeSvg(svg: string | Buffer, { size, width, height, background, pixelData }: RasterizeArgs = {}): Promise<Buffer | CanvasImageData> {
-  const buf = typeof svg === 'string' ? Buffer.from(svg) : svg
+async function rasterizeSvg(svg: string | Buffer, { size, rasterSize, background, pixelData }: RasterizeArgs = {}): Promise<Buffer | CanvasImageData> {
+  const buf = is_string(svg) ? Buffer.from(svg) : svg
   const img = await loadImage(buf)
-  const w0 = size?.[0] ?? img.width
-  const h0 = size?.[1] ?? img.height
-
-  // if both width and height given, scale to fit within (prefer smaller scale)
-  if (width != null && height != null) {
-    const scaleW = width / w0
-    const scaleH = height / h0
-    if (scaleW < scaleH) height = undefined
-    else width = undefined
-  }
-
-  // pick output dimensions; preserve aspect when only one of width/height given
-  let outW: number, outH: number
-  if (width != null) {
-    outW = width
-    outH = Math.round(width * h0 / w0)
-  } else if (height != null) {
-    outH = height
-    outW = Math.round(height * w0 / h0)
-  } else {
-    outW = w0
-    outH = h0
-  }
+  const imgSize = size ?? [ img.width, img.height ]
+  const [ outW, outH ] = fitRasterSize(imgSize, rasterSize)
 
   // create canvas
   const canvas = createCanvas(outW, outH)
@@ -125,5 +114,5 @@ async function readStdin(): Promise<string> {
   return Buffer.concat(chunks).toString('utf-8')
 }
 
-export { rasterizeSvg, formatImage, readStdin }
+export { fitRasterSize, rasterizeSvg, formatImage, readStdin }
 export type { RasterizeBaseArgs, RasterizePngArgs, RasterizePixelArgs, RasterizeArgs, FormatImageArgs }

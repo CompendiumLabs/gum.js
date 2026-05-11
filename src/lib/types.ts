@@ -66,8 +66,7 @@ interface CliArgs {
   theme: ThemeName
   background?: string
   size?: Size
-  width?: number
-  height?: number
+  rasterSize?: Size
   dev: boolean
   loadFile: LoadFile
 }

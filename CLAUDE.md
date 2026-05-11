@@ -26,9 +26,8 @@ gum test.jsx -o test.png
 
 # Run options:
 # file: gum.jsx file to render (reads from stdin if not provided)
-# -s, --size <size>        size of the svg (default: 1000)
-# -w, --width <width>      width of the png (default: null)
-# -h, --height <height>    height of the png (default: null)
+# -s, --size <size>        size of the svg/viewBox (default: 1000)
+# -r, --raster-size <size> max rasterized PNG size (default: null)
 # -f, --format <format>    format: svg, png, kitty (default: kitty or inferred)
 # -t, --theme <theme>      theme to use (default: light)
 # -b, --background <color> background color (default: white)

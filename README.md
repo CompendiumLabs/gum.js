@@ -91,11 +91,10 @@ CLI options:
 | Option | Description | Default |
 |--------|-------------|---------|
 | `file` | Gum JSX file to render | stdin |
-| `-s, --size <size>` | Image size in pixels | 1000 |
+| `-s, --size <size>` | SVG/viewBox size in pixels | 1000 |
 | `-t, --theme <theme>` | Theme: `light` or `dark` | light |
 | `-b, --background <color>` | Background color | white |
 | `-f, --format <format>` | Format: `json`, `svg`, `png`, `kitty` | auto |
 | `-o, --output <output>` | Output file | stdout |
-| `-w, --width <width>` | Max width of the PNG | auto |
-| `-h, --height <height>` | Max height of the PNG | auto |
+| `-r, --raster-size <size>` | Max rasterized PNG size | auto |
 | `-d, --dev` | Live update display | off |
