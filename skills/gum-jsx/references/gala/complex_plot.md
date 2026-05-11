@@ -14,7 +14,7 @@ const Curve = ({ fx, stroke }) => <SymLine fx={fx} ylim={ylim} stroke={stroke} s
 const xlabel = <Latex>x = a + bi</Latex>
 const ylabel = <Latex>c</Latex>
 return <Plot aspect={2} margin={0.3} xlim={xlim} ylabel={ylabel} xlabel={xlabel} ylabel-offset={0.075}>
-  <Mesh2D xlocs={41} ylocs={21} xlim={xlim} ylim={ylim} opacity={0.3} />
+  <Mesh2D xlocs={41} ylocs={21} xlim={xlim} ylim={ylim} opacity={0.1} />
   <HLine loc={0} lim={xlim} opacity={0.3} />
   <VLine loc={0} lim={ylim} opacity={0.3} />
   <Curve fx={y => -y + sqrt(maximum(0, y*y-1))} stroke={blue} />
