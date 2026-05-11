@@ -382,11 +382,9 @@ class Grid extends Group {
         const aspect = aspect0 ?? aspect_ideal
 
         // make grid
-        const rects = meshgrid(rranges, cranges).map(([ ylim, xlim ]) =>
-            join_limits({ h: xlim, v: ylim })
-        )
-        const items = zip(children, rects).map(([ child, rect ]) =>
-            child.clone({ rect })
+        const mesh = meshgrid(rranges, cranges)
+        const items = zip(children, mesh).map(([ child, [ ylim, xlim ] ]) =>
+            child.clone({ xrect: xlim, yrect: ylim })
         )
 
         // pass to Group

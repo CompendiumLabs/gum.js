@@ -259,7 +259,7 @@ function props_repr(d: Attrs, prec: number): string {
 
 // reserved keys
 const SPEC_KEYS = [ 'rect', 'coord', 'aspect', 'aspect0', 'expand', 'align', 'upright', 'offset', 'rotate', 'rotate_adjust', 'rotate_invar' ]
-const HELP_KEYS = [ 'pos', 'size', 'xsize', 'ysize', 'rad', 'xrad', 'yrad', 'flex', 'spin', 'orient' ]
+const HELP_KEYS = [ 'pos', 'size', 'xsize', 'ysize', 'rad', 'xrad', 'yrad', 'xrect', 'yrect', 'flex', 'spin', 'orient' ]
 const EXTR_KEYS = [ 'stack_size' ]
 const RESERVED_KEYS = [ ...SPEC_KEYS, ...HELP_KEYS, ...EXTR_KEYS ]
 

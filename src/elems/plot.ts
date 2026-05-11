@@ -652,9 +652,8 @@ class Plot extends Box {
         if (xaxis === true) xaxis = new HAxis({ ticks: xticks, lim: xlim })
         if (xaxis != null && xaxis !== false) {
             const xtick_size1 = xtick_size * (ymax - ymin)
-            const xaxis_ylim: Limit = [ xanchor - xtick_size1, xanchor + xtick_size1 ]
-            const xaxis_rect = join_limits({ h: xlim, v: xaxis_ylim })
-            xaxis = xaxis.clone({ rect: xaxis_rect, ...xaxis_attr }) as HAxis
+            const xaxis_ylim = [ xanchor - xtick_size1, xanchor + xtick_size1 ]
+            xaxis = xaxis.clone({ xrect: xlim, yrect: xaxis_ylim, ...xaxis_attr }) as HAxis
             fg_elems.push(xaxis)
         }
 
@@ -662,9 +661,8 @@ class Plot extends Box {
         if (yaxis === true) yaxis = new VAxis({ ticks: yticks, lim: ylim })
         if (yaxis != null && yaxis !== false) {
             const ytick_size1 = ytick_size * (xmax - xmin)
-            const yaxis_xlim: Limit = [ yanchor - ytick_size1, yanchor + ytick_size1 ]
-            const yaxis_rect = join_limits({ h: yaxis_xlim, v: ylim })
-            yaxis = yaxis.clone({ rect: yaxis_rect, ...yaxis_attr }) as VAxis
+            const yaxis_xlim = [ yanchor - ytick_size1, yanchor + ytick_size1 ]
+            yaxis = yaxis.clone({ xrect: yaxis_xlim, yrect: ylim, ...yaxis_attr }) as VAxis
             fg_elems.push(yaxis)
         }
 

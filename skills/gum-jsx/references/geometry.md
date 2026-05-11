@@ -33,8 +33,8 @@ Prompt: two ellipses, one wider and one taller
 Generated code:
 ```jsx
 <Group>
-  <Ellipse pos={[0.3, 0.2]} size={[0.4, 0.2]} />
-  <Ellipse pos={[0.6, 0.6]} size={[0.4, 0.5]} />
+  <Ellipse pos={[0.3, 0.2]} rad={[0.2, 0.1]} />
+  <Ellipse pos={[0.6, 0.6]} rad={[0.2, 0.25]} />
 </Group>
 ```
 
@@ -57,8 +57,8 @@ Prompt: elliptical and circular arcs using start and end angles
 Generated code:
 ```jsx
 <Group>
-  <Arc pos={[0.3, 0.5]} size={[0.4, 0.3]} start={-45} end={210} stroke={blue} stroke-width={2} />
-  <Arc pos={[0.7, 0.5]} size={0.3} start={90} end={-150} stroke={red} stroke-width={2} />
+  <Arc pos={[0.3, 0.5]} rad={[0.2, 0.15]} start={-45} end={210} stroke={blue} stroke-width={2} />
+  <Arc pos={[0.7, 0.5]} rad={0.15} start={90} end={-150} stroke={red} stroke-width={2} />
 </Group>
 ```
 
