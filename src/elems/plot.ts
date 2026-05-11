@@ -513,8 +513,8 @@ function outer_limits(children: Element[], { xlim, ylim, padding = 0 }: { xlim?:
     if (children.length == 0) return
 
     // pull in child coordinate system
-    const coord0 = merge_rects(children.map((c: Element) => c.graphCoord()))
-    const { h: xlim0, v: ylim0 } = resolve_limits(xlim, ylim, coord0)
+    const coord = merge_rects(children.map((c: Element) => c.graphCoord()))
+    const { h: xlim0, v: ylim0 } = resolve_limits(xlim, ylim, coord)
 
     // expand with padding
     const [ xpad, ypad ] = ensure_vector(padding, 2)
@@ -593,13 +593,13 @@ interface PlotArgs extends BoxArgs {
 class Plot extends Box {
     constructor(args: PlotArgs = {}) {
         let {
-            children: children0, xlim, ylim, axis = true, xaxis, yaxis, xticks = 5, yticks = 5, xanchor, yanchor, grid, xgrid, ygrid, xlabel, ylabel, title, tick_size = 0.015, label_size = 0.05, label_offset = 0.125, title_size = 0.075, title_offset = 0.05, xlabel_size, ylabel_size, xlabel_offset, ylabel_offset, xtick_label_offset = 0.75, ytick_label_offset = 0.25, xtick_size, ytick_size, padding, margin, aspect: aspect0 = 'auto', clip, debug = false, ...attr0
+            children: children0, xlim, ylim, axis = true, xaxis, yaxis, xticks = 5, yticks = 5, xanchor, yanchor, grid, xgrid, ygrid, xlabel, ylabel, title, tick_size = 0.015, label_size = 0.05, label_offset = 0.125, title_size = 0.075, title_offset = 0.05, xlabel_size, ylabel_size, xlabel_offset, ylabel_offset, xtick_label_offset = 0.75, ytick_label_offset = 0.25, xtick_size, ytick_size, padding, margin, coord: coord0 = 'auto', aspect: aspect0 = 'auto', clip, debug = false, ...attr0
         } = THEME(args, 'Plot')
         const children = ensure_children(children0)
 
         // determine coordinate system and aspect
-        const coord = outer_limits(children, { xlim, ylim, padding }) as Rect
-        const [ xmin, ymin, xmax, ymax ] = coord
+        const coord = coord0 == 'auto' ? outer_limits(children, { xlim, ylim, padding }) : coord0
+        const [ xmin, ymin, xmax, ymax ] = coord ?? D.coord
         xlim = [ xmin, xmax ]
         ylim = [ ymin, ymax ]
 

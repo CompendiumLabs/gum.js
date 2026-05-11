@@ -160,32 +160,27 @@ Below is the full documentation for the core `gum.jsx` components: `Element`, `G
 
 ## Element
 
-The base class for all `gum.jsx` objects. You will usually not be working with this object directly unless you are implementing your own custom elements. An **Element** has a few methods that can be overriden, each of which takes a **Context** object as an argument. The vast majority of implementations will override only `props` and `inner` (for non-unary elements).
+The base class for all Gum objects. You will usually not be working with this object directly unless you are implementing your own custom elements. However, many of the arguments are common to all elements and are documented here.
 
-The position and size of an element are specified in the internal coordinates (`coord`) of its parent, which defaults to the unit square. Rectangles are always specified in `[left, top, right, bottom]` format. You can also specify the placement by specifying `pos` and `size`, radial size with `rad`, or various combinations of `xsize`/`ysize` and `xrad`/`yrad`. When not specified, `rect` defaults to the unit square.
+The position and size of an element are specified in the internal coordinates (`coord`) of its parent, which defaults to the unit square. Rectangles are always specified in `[left, top, right, bottom]` format. Where the element is placed is ultimately determined by its `rect`. However, it is more common to specify the `rect` using one of the convenience parameters below.
+
+There are several convenience parameters that can be used to specify the `rect` in a more intuitive way. These include `size`/`xsize`/`ysize` for controlling the extent of the rectangle around `pos` and the analogous `rad`/`xrad`/`yrad` for radial specification. You can also specify the limits in either or both dimensions with `xrect`/`yrect`, where a single number is interpreted as a zero-length limit at that position.
+
+The `expand` parameter can be used to control whether the element should be expanded to fully contain its `rect`. This is useful if you have an aspected element with a desired size in one dimension. A very common case is a **Text** element where you specify `pos` and `ysize` and leave the width to be determined by the aspect ratio.
 
 Parameters:
-- `tag` = `g` — the SVG tag associated with this element
-- `unary` = `false` — whether there is inner text for this element
 - `aspect` = `null` — the width to height ratio for this element
+- `rect` — a fully specified rectangle to place the child in (takes precedence over other parameters)
 - `pos` — the desired position of the center of the child's rectangle
-- `size` ­— the desired size of the child's rectangle (can be single number or pair)
-- `xsize`/`ysize` ­— specify the size for a specific dimension (and expand the other)
-- `rad` — the desired radius of the child's rectangle (can be single number or pair)
-- `xrad`/`yrad` — specify the radius for a specific dimension (and expand the other)
-- `rect` — a fully specified rectangle to place the child in (this will override `pos`/`size`/`rad`)
-- `aspect` — the aspect ratio of the child's rectangle
+- `size`/`xsize`/`ysize` ­— the desired size of the child's rectangle (`size` can be single number or pair)
+- `rad`/`xrad`/`yrad` — the desired radius of the child's rectangle (`rad` can be single number or pair)
+- `xrect`/`yrect` — the limits of the child's rectangle in the x and y dimensions (both can be single number or pair)
 - `expand` — when `true`, instead of embedding the child within `rect`, it will make the child just large enough to fully contain `rect`
 - `align` — how to align the child when it doesn't fit exactly within `rect`, options are `left`, `right`, `center`, or a fractional position (can set vertical and horizontal separately with a pair)
 - `rotate` — how much to rotate the child by (degrees counterclockwise)
 - `spin` — like rotate but will maintain the same size
 - `flex` ­— override to set `aspect = null`
-- `...` = `{}` — additional attributes that are included in `props`
-
-Methods:
-- `props(ctx)` — returns a dictionary of attributes for the SVG element. The default implementation returns the non-null `attr` passed to the constructor
-- `inner(ctx)` — returns the inner text of the SVG element (for non-unary). Defaults to returing empty string
-- `svg(ctx)` — returns the rendered SVG of the element as a `String`. Default implementation constructs SVG from `tag`, `unary`, `props`, and `inner`
+- `...` = `{}` — additional attributes are applied directly to the resulting SVG
 
 **Example**
 
@@ -236,7 +231,7 @@ Generated code:
 
 This is a simple container class allowing you to add padding, margins, and a border to a single **Element**. It's pretty versatile and is often used to set up the outermost positioning of a figure. Mirroring the standard CSS definitions, padding is space inside the border and margin is space outside the border. This has no border by default, but there is a specialized subclass of this called **Frame** that defaults to `border = 1`.
 
-**Box** can be pretty handly in various situations. It is differentiated from **Group** in that it will adopt the `aspect` of the child element. This is useful if you want to do something like shift an element up or down by a certain amount while maintaining its aspect ratio. Simply wrap it in a **Box** and set child's `pos` to the desired offset.
+**Box** can be pretty handly in various situations. It is differentiated from **Group** in that it will adopt the `aspect` of the first child element. This is useful if you want to do something like shift an element up or down by a certain amount while maintaining its aspect ratio. Simply wrap it in a **Box** and set child's `pos` to the desired offset.
 
 There are multiple ways to specify padding and margins. If given as a scalar, it is constant across all sides. If two values are given, they correspond to the horizontal and vertical sides. If four values are given, they correspond to `[left, top, right, bottom]`.
 

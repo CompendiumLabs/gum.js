@@ -72,6 +72,10 @@ function ensure_vector<T>(x: T | T[], n: number): T[] {
     }
 }
 
+function ensure_pair<T>(x: T | [T, T]): [T, T] {
+    return is_array(x) ? x : [ x, x ]
+}
+
 function ensure_singleton<T>(x: T[] | undefined): T | undefined {
     if (x == null) return undefined
     return is_array(x) ? x[0] : x
@@ -913,4 +917,4 @@ function binary_search(arr: number[], t: number): number {
 // export
 //
 
-export { is_browser, is_boolean, is_scalar, is_string, is_number, is_object, is_function, is_array, is_singleton, is_point, ensure_vector, ensure_singleton, ensure_function, check_singleton, check_array, check_string, gzip, zip, reshape, split, concat, squeeze, slice, intersperse, sum, prod, mean, all, any, cumsum, norm, normalize, range, linspace, enumerate, repeat, padvec, meshgrid, lingrid, map_object, filter_object, compress_whitespace, exp, log, log10, sin, cos, tan, cot, abs, pow, sqrt, sign, floor, ceil, round, atan, atan2, isNan, isInf, minimum, maximum, heaviside, heavisign, abs_min, abs_max, min, max, clamp, rescale, sigmoid, logit, smoothstep, identity, invert, setSeed, random, uniform, normal, integer, broadcast_point, add2, sub2, mul2, div2, ensure_number, ensure_point, ensure_mnumber, ensure_mpoint, addm, subm, add2m, sub2m, make_mpoint, squeeze_mnumber, squeeze_mpoint, rect_size, rect_dims, rect_center, rect_radius, rect_aspect, rect_radial, norm_angle, split_limits, vector_angle, angle_direc, polar, polard, side_direc, unit_direc, norm_side, rgba_repr, interp, palette, detect_coords, resolve_limits, join_limits, invert_orient, aspect_invariant, flip_rect, radial_rect, box_rect, rect_box, cbox_rect, rect_cbox, merge_rects, merge_points, merge_limits, merge_values, expand_limits, expand_rect, upright_rect, upright_limits, rounder, remap_rect, resizer, rescaler, rotate_aspect, prefix_split, prefix_join, binary_search }
+export { is_browser, is_boolean, is_scalar, is_string, is_number, is_object, is_function, is_array, is_singleton, is_point, ensure_vector, ensure_pair, ensure_singleton, ensure_function, check_singleton, check_array, check_string, gzip, zip, reshape, split, concat, squeeze, slice, intersperse, sum, prod, mean, all, any, cumsum, norm, normalize, range, linspace, enumerate, repeat, padvec, meshgrid, lingrid, map_object, filter_object, compress_whitespace, exp, log, log10, sin, cos, tan, cot, abs, pow, sqrt, sign, floor, ceil, round, atan, atan2, isNan, isInf, minimum, maximum, heaviside, heavisign, abs_min, abs_max, min, max, clamp, rescale, sigmoid, logit, smoothstep, identity, invert, setSeed, random, uniform, normal, integer, broadcast_point, add2, sub2, mul2, div2, ensure_number, ensure_point, ensure_mnumber, ensure_mpoint, addm, subm, add2m, sub2m, make_mpoint, squeeze_mnumber, squeeze_mpoint, rect_size, rect_dims, rect_center, rect_radius, rect_aspect, rect_radial, norm_angle, split_limits, vector_angle, angle_direc, polar, polard, side_direc, unit_direc, norm_side, rgba_repr, interp, palette, detect_coords, resolve_limits, join_limits, invert_orient, aspect_invariant, flip_rect, radial_rect, box_rect, rect_box, cbox_rect, rect_cbox, merge_rects, merge_points, merge_limits, merge_values, expand_limits, expand_rect, upright_rect, upright_limits, rounder, remap_rect, resizer, rescaler, rotate_aspect, prefix_split, prefix_join, binary_search }

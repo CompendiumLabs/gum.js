@@ -2,10 +2,10 @@
 
 import { THEME } from '../lib/theme'
 import { DEFAULTS as D, svgns, sans, light, blue, red, d2r } from '../lib/const'
-import { is_scalar, abs, cos, sin, tan, cot, mul2, div2, filter_object, expand_rect, rect_box, radial_rect, cbox_rect, rect_cbox, merge_points, merge_rects, ensure_vector, broadcast_point, rounder, heavisign, abs_min, abs_max, rect_radial, rotate_aspect, remap_rect, rescaler, resizer, rect_size, vector_angle, polard, upright_rect } from '../lib/utils'
+import { is_scalar, abs, cos, sin, tan, cot, mul2, div2, filter_object, expand_rect, rect_box, cbox_rect, rect_cbox, merge_points, merge_rects, join_limits, ensure_pair, broadcast_point, rounder, heavisign, abs_min, abs_max, rect_radial, rotate_aspect, remap_rect, rescaler, resizer, rect_size, rect_dims, vector_angle, polard, upright_rect } from '../lib/utils'
 import { random } from '../lib/rng'
 
-import type { Point, Rect, Size, AlignValue, Align, Side, Attrs, MNumber, MPoint, Spec } from '../lib/types'
+import type { Point, Rect, Size, AlignValue, Align, Side, Attrs, MNumber, MPoint, Spec, Limit } from '../lib/types'
 
 //
 // rect embedding
@@ -217,7 +217,7 @@ class Context {
         const transform = rotate1 ? rotate_repr(rotate1, [ x0, y0 ], this.prec) : undefined
 
         // broadcast align into [ halign, valign ] components
-        const [ hafrac, vafrac ] = ensure_vector(align, 2).map(align_frac)
+        const [ hafrac, vafrac ] = ensure_pair(align).map(align_frac)
         const [ x, y ] = [
             x0 + (0.5 - hafrac) * (w - w0),
             y0 + (0.5 - vafrac) * (h - h0),
@@ -303,6 +303,8 @@ interface ElementArgs extends SpecArgs {
     rad?: number | Size
     xrad?: number
     yrad?: number
+    xrect?: number | Limit
+    yrect?: number | Limit
     flex?: boolean
     spin?: number
     orient?: number
@@ -319,7 +321,7 @@ class Element {
     attr: Attrs
 
     constructor(args: ElementArgs = {}) {
-        const { tag, unary, children, pos, size: size0, xsize: xsize0, ysize: ysize0, rad, xrad, yrad, flex, spin, orient, ...attr0 } = args
+        const { tag, unary, children, pos, size: size0, xsize: xsize0, ysize: ysize0, rad, xrad, yrad, xrect, yrect, flex, spin, orient, ...attr0 } = args
         const [ spec, attr ] = spec_split(attr0, false)
         this.args = args
 
@@ -335,18 +337,27 @@ class Element {
         this.spec = spec
         this.attr = attr
 
-        // handle rad/xrad/yrad conveniences
+        // handle pos/rad/xrad/yrad conveniences
+        const [ x, y ] = pos ?? D.pos
         const size = rad != null ? mul2(rad, 2) : size0
         const xsize = xrad != null ? 2 * xrad : xsize0
         const ysize = yrad != null ? 2 * yrad : ysize0
 
-
-        // handle pos/size/rad conveniences
-        if (pos != null || size != null || xsize != null || ysize != null) {
-            const has_xy = xsize != null || ysize != null
-            const size1 = has_xy ? [ xsize ?? 0, ysize ?? 0 ] as Point : undefined
-            this.spec.rect ??= cbox_rect([ ...(pos ?? D.pos), ...(broadcast_point(size ?? size1 ?? D.size)) ])
-            if (has_xy) this.spec.expand = true
+        // handle rect conveniences
+        if (this.spec.rect != null) {
+            // already have a rect
+        } else if (size != null) {
+            const [ w, h ] = broadcast_point(size)
+            this.spec.rect = cbox_rect([ x, y, w, h ])
+        } else if (xrect != null || yrect != null) {
+            const xrect1 = ensure_pair(xrect ?? x)
+            const yrect1 = ensure_pair(yrect ?? y)
+            this.spec.rect = join_limits({ h: xrect1, v: yrect1 })
+            if (xrect == null || yrect == null) this.spec.expand = true
+        } else if (xsize != null || ysize != null) {
+            const [ w, h ] = broadcast_point([ xsize ?? 0, ysize ?? 0 ])
+            this.spec.rect = cbox_rect([ x, y, w, h ])
+            if (xsize == null || ysize == null) this.spec.expand = true
         }
 
         // various convenience conversions
