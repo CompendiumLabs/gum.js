@@ -2,7 +2,7 @@
 
 import { THEME } from '../lib/theme'
 import { DEFAULTS as D, none, gray } from '../lib/const'
-import { is_boolean, is_scalar, is_array, ensure_vector, ensure_point, check_array, upright_limits, rounder, abs, rect_radial, make_mpoint, merge_points, broadcast_point, add2, sub2, mul2, div2, norm, angle_direc, unit_direc, vector_angle, polard, prefix_split} from '../lib/utils'
+import { is_boolean, is_scalar, is_array, ensure_vector, ensure_point, check_array, upright_limits, rounder, abs, rect_radial, make_mpoint, merge_points, ensure_pair, add2, sub2, mul2, div2, norm, angle_direc, unit_direc, vector_angle, polard, prefix_split} from '../lib/utils'
 import { cubic_spline_data, cubic_spline_tangent } from '../lib/interp'
 import { Context, Element, Group, Rectangle } from './core'
 
@@ -622,7 +622,7 @@ function parse_rounded(rounded: Rounded): Point[] {
         const [ rx, ry ] = rounded
         rounded = [[rx, ry], [rx, ry], [rx, ry], [rx, ry]]
     }
-    return rounded.map(broadcast_point)
+    return rounded.map(ensure_pair)
 }
 
 interface RoundedRectArgs extends ElementArgs {

@@ -5,7 +5,8 @@ import { createCanvas, loadImage, registerFont, type ImageData as CanvasImageDat
 import type { Size } from './lib/types'
 import { FONT_PATHS } from './fonts/fonts'
 import { light, regular, bold } from './lib/const'
-import { broadcast_point, is_string } from './lib/utils'
+import { is_string } from './lib/utils'
+import { fitSize } from './eval'
 
 // register bundled fonts so SVG <text> resolves consistently
 for (const [ family, path ] of Object.entries(FONT_PATHS)) {
@@ -43,23 +44,13 @@ interface FormatImageArgs {
   cursorMovement?: boolean
 }
 
-function fitRasterSize([ w0, h0 ]: Size, rasterSize?: Size): Size {
-  if (rasterSize == null) return [ w0, h0 ]
-  const [ maxW, maxH ] = broadcast_point(rasterSize)
-  const scale = Math.min(maxW / w0, maxH / h0)
-  return [
-    Math.max(1, Math.round(w0 * scale)),
-    Math.max(1, Math.round(h0 * scale)),
-  ]
-}
-
 async function rasterizeSvg(svg: string | Buffer, args: RasterizePixelArgs): Promise<CanvasImageData>
 async function rasterizeSvg(svg: string | Buffer, args?: RasterizePngArgs): Promise<Buffer>
 async function rasterizeSvg(svg: string | Buffer, { size, rasterSize, background, pixelData }: RasterizeArgs = {}): Promise<Buffer | CanvasImageData> {
   const buf = is_string(svg) ? Buffer.from(svg) : svg
   const img = await loadImage(buf)
   const imgSize = size ?? [ img.width, img.height ]
-  const [ outW, outH ] = fitRasterSize(imgSize, rasterSize)
+  const [ outW, outH ] = fitSize(imgSize, rasterSize)
 
   // create canvas
   const canvas = createCanvas(outW, outH)
@@ -114,5 +105,5 @@ async function readStdin(): Promise<string> {
   return Buffer.concat(chunks).toString('utf-8')
 }
 
-export { fitRasterSize, rasterizeSvg, formatImage, readStdin }
+export { rasterizeSvg, formatImage, readStdin }
 export type { RasterizeBaseArgs, RasterizePngArgs, RasterizePixelArgs, RasterizeArgs, FormatImageArgs }

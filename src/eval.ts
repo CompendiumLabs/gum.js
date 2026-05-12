@@ -3,13 +3,13 @@
 import type { ParseConfig } from 'papaparse'
 
 import { setTheme, type ThemeName } from './lib/theme'
-import { is_string } from './lib/utils'
+import { is_string, ensure_pair } from './lib/utils'
 import { parseTable } from './lib/table'
 import { is_element, Svg } from './elems/core'
 import type { SvgArgs } from './elems/core'
 import { runJSX } from './lib/parse'
 import { PngImage, type PngImageArgs } from './elems/image'
-import type { LoadFile } from './lib/types'
+import type { LoadFile, Size } from './lib/types'
 
 //
 // types
@@ -147,9 +147,19 @@ function evaluateGum(code: string, { theme, context = {}, debug = false, loadFil
   return result
 }
 
+function fitSize([ w0, h0 ]: Size, rasterSize?: Size | number): Size {
+  if (rasterSize == null) return [ w0, h0 ]
+  const [ maxW, maxH ] = ensure_pair(rasterSize)
+  const scale = Math.min(maxW / w0, maxH / h0)
+  return [
+    Math.max(1, Math.round(w0 * scale)),
+    Math.max(1, Math.round(h0 * scale)),
+  ]
+}
+
 //
 // export
 //
 
-export { ErrorNoCode, ErrorNoReturn, ErrorNoElement, ErrorGenerate, ErrorRender, runJSX, evaluateGum, parseTable }
+export { ErrorNoCode, ErrorNoReturn, ErrorNoElement, ErrorGenerate, ErrorRender, runJSX, evaluateGum, parseTable, fitSize }
 export type { EvaluateArgs, TableRow, LoadTable, GumContext }

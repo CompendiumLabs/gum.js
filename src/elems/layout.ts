@@ -2,7 +2,7 @@
 
 import { THEME } from '../lib/theme'
 import { DEFAULTS as D, none } from '../lib/const'
-import { is_scalar, ensure_vector, broadcast_point, log, exp, max, sum, zip, div2, cumsum, reshape, repeat, meshgrid, padvec, normalize, mean, identity, invert, aspect_invariant, check_singleton, check_array, rect_center, rect_radius, join_limits, radial_rect, norm_side, intersperse, prefix_split, merge_points } from '../lib/utils'
+import { is_scalar, ensure_vector, ensure_pair, log, exp, max, sum, zip, div2, cumsum, reshape, repeat, meshgrid, padvec, normalize, mean, identity, invert, aspect_invariant, check_singleton, check_array, rect_center, rect_radius, join_limits, radial_rect, norm_side, intersperse, prefix_split, merge_points } from '../lib/utils'
 import { wrapWidths } from '../lib/wrap'
 
 import { Context, Group, Element, Rectangle, Spacer, spec_split, align_frac, ensure_children } from './core'
@@ -328,7 +328,7 @@ function computeGridLayout(children: Element[][], rows: number, cols: number, { 
     const aspect_ideal = exp(log_mu - mean(widths.map(log)) + mean(heights.map(log)))
 
     // adjust widths and heights to account for spacing
-    const [spacex, spacey] = broadcast_point(spacing)
+    const [spacex, spacey] = ensure_pair(spacing)
     const [scalex, scaley] = [1 - spacex * (cols-1), 1 - spacey * (rows-1)]
     widths = widths.map(w => scalex * w)
     heights = heights.map(h => scaley * h)

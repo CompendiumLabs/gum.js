@@ -2,7 +2,7 @@
 
 import { THEME } from '../lib/theme'
 import { DEFAULTS as D, svgns, sans, light, blue, red, d2r } from '../lib/const'
-import { is_scalar, abs, cos, sin, tan, cot, mul2, div2, filter_object, expand_rect, rect_box, cbox_rect, rect_cbox, merge_points, merge_rects, join_limits, ensure_pair, broadcast_point, rounder, heavisign, abs_min, abs_max, rect_radial, rotate_aspect, remap_rect, rescaler, resizer, rect_size, rect_dims, vector_angle, polard, upright_rect } from '../lib/utils'
+import { is_scalar, abs, cos, sin, tan, cot, mul2, div2, filter_object, expand_rect, rect_box, cbox_rect, rect_cbox, merge_points, merge_rects, join_limits, ensure_pair, rounder, heavisign, abs_min, abs_max, rect_radial, rotate_aspect, remap_rect, rescaler, resizer, rect_size, vector_angle, polard, upright_rect } from '../lib/utils'
 import { random } from '../lib/rng'
 
 import type { Point, Rect, Size, AlignValue, Align, Side, Attrs, MNumber, MPoint, Spec, Limit } from '../lib/types'
@@ -347,7 +347,7 @@ class Element {
         if (this.spec.rect != null) {
             // already have a rect
         } else if (size != null) {
-            const [ w, h ] = broadcast_point(size)
+            const [ w, h ] = ensure_pair(size)
             this.spec.rect = cbox_rect([ x, y, w, h ])
         } else if (xrect != null || yrect != null) {
             const xrect1 = ensure_pair(xrect ?? x)
@@ -355,7 +355,7 @@ class Element {
             this.spec.rect = join_limits({ h: xrect1, v: yrect1 })
             if (xrect == null || yrect == null) this.spec.expand = true
         } else if (xsize != null || ysize != null) {
-            const [ w, h ] = broadcast_point([ xsize ?? 0, ysize ?? 0 ])
+            const [ w, h ] = ensure_pair([ xsize ?? 0, ysize ?? 0 ])
             this.spec.rect = cbox_rect([ x, y, w, h ])
             if (xsize == null || ysize == null) this.spec.expand = true
         }
@@ -662,7 +662,7 @@ class Svg extends Group {
     constructor(args: SvgArgs = {}) {
         const { children: children0, size : size0 = D.svg_size, padding = 1, bare = false, dims = true, filters, aspect: aspect0 = 'auto', view: view0, style, xmlns = svgns, font_family = sans, font_weight = light, prec = D.prec, ...attr } = THEME(args, 'Svg')
         const children = ensure_children(children0)
-        const size_base = broadcast_point(size0)
+        const size_base = ensure_pair(size0)
 
         // precompute aspect info
         const aspect = aspect0 == 'auto' ? children_aspect(children) : aspect0

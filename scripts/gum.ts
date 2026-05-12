@@ -4,8 +4,8 @@ import { Command } from 'commander'
 import { readFileSync, writeFileSync } from 'fs'
 import { dirname, resolve } from 'path'
 
-import { evaluateGum } from '../src/eval'
-import { fitRasterSize, rasterizeSvg, formatImage, readStdin } from '../src/render'
+import { evaluateGum, fitSize } from '../src/eval'
+import { rasterizeSvg, formatImage, readStdin } from '../src/render'
 import { Element, Group } from '../src/elems/core'
 import type { CliArgs, LoadFile } from '../src/lib/types'
 import { devCommand } from './dev'
@@ -88,7 +88,7 @@ async function runCommand(args: CliArgs) {
   } else if (format == 'png' || format == 'kitty') {
     let svg = elem.svg()
     if (rasterSize != null) {
-      const [ rasterWidth, rasterHeight ] = fitRasterSize(elem.size, rasterSize)
+      const [ rasterWidth, rasterHeight ] = fitSize(elem.size, rasterSize)
       const elem1 = elem.clone({ width: rasterWidth, height: rasterHeight })
       svg = elem1.svg()
     }
